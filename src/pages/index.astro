@@ -13,6 +13,25 @@ const totalTimeSaved = automations.reduce((sum, a) => sum + a.time_saved_hours_p
 const totalAnnualValue = automations.reduce((sum, a) => sum + a.annual_value_usd, 0);
 const expiringKeys = getExpiringApiKeys(90);
 
+// Calculate current month growth
+const now = new Date();
+const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+const automationsThisMonth = automations.filter(a => {
+  const createdDate = new Date(a.created);
+  return createdDate >= currentMonthStart && createdDate <= currentMonthEnd;
+});
+
+const growthAutomations = automationsThisMonth.length;
+const growthTimeSaved = automationsThisMonth.reduce((sum, a) => sum + a.time_saved_hours_per_month, 0);
+const growthAnnualValue = automationsThisMonth.reduce((sum, a) => sum + a.annual_value_usd, 0);
+
+// Calculate keys expiring this month (within 30 days)
+const keysExpiringThisMonth = getExpiringApiKeys(30).length;
+const previousKeysExpiring = getExpiringApiKeys(90).length - keysExpiringThisMonth;
+const growthExpiringKeys = keysExpiringThisMonth;
+
 // Generate time series data based on automation creation dates
 // This shows cumulative time saved and value as automations were added
 const generateTimeSeriesData = () => {
@@ -101,6 +120,7 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
         value={automations.length}
         icon="🤖"
         subtitle={`Across ${new Set(automations.map(a => a.department)).size} departments`}
+        growth={growthAutomations}
       />
 
       <StatsCard
@@ -108,6 +128,7 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
         value={`${totalTimeSaved}h`}
         icon="⏱️"
         subtitle="Across all automations"
+        growth={growthTimeSaved}
       />
 
       <StatsCard
@@ -115,6 +136,7 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
         value={formatCurrency(totalAnnualValue)}
         icon="💰"
         subtitle="Total business value"
+        growth={growthAnnualValue}
       />
 
       <StatsCard
@@ -122,6 +144,7 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
         value={expiringKeys.length}
         icon="🔑"
         subtitle="Within 90 days"
+        growth={growthExpiringKeys}
       />
     </div>
 

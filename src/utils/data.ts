@@ -7,6 +7,13 @@ export interface AutomationLink {
   url: string;
 }
 
+export interface Schedule {
+  frequency: string;
+  time?: string;
+  timezone?: string;
+  days?: string[];
+}
+
 export interface Automation {
   id: string;
   name: string;
@@ -21,6 +28,7 @@ export interface Automation {
   created: string;
   last_updated: string;
   links?: AutomationLink[];
+  schedules?: Schedule[];
   api_keys?: ApiKey[];
   diagramPath?: string;
   readmePath?: string;

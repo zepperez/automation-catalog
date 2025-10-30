@@ -23,6 +23,16 @@ links:
     url: https://ntiva-dev.sentry.io/issues/?project=4508728420335616
   - name: Source Code
     url: hhttps://gitlab.com/atlas41/internal-devops/connectwise-manage/-/tree/fcc15ce00ac31b0fa3c3e82a581634a16558b7e6/Opportunities/Conversions/Conversion%20Cleanup%20&%20Clear%20Cost%20on%20Labor%20Items%20in%20Sales%20Orders
+schedules:
+  - frequency: Twice daily
+    time: 9:00 AM, 2:00 PM
+    timezone: America/New_York
+    days:
+      - Mon
+      - Tue
+      - Wed
+      - Thu
+      - Fri
 api_keys:
   - name: SalesOppCleanupPublicKey
     system: Connectwise Manage

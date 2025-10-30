@@ -8,12 +8,13 @@ interface Props {
     value: number;
     isPositive: boolean;
   };
+  growth?: number;
 }
 
-const { title, value, subtitle, icon = '📊', trend } = Astro.props;
+const { title, value, subtitle, icon = '📊', trend, growth } = Astro.props;
 ---
 
-<div class="card p-6">
+<div class="card p-6 relative">
   <div class="flex items-start justify-between">
     <div class="flex-1">
       <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
@@ -32,4 +33,15 @@ const { title, value, subtitle, icon = '📊', trend } = Astro.props;
       {icon}
     </div>
   </div>
+  {growth !== undefined && growth !== 0 && (
+    <div class="absolute bottom-3 right-3">
+      <span class={`inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold ${
+        growth > 0
+          ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'
+          : 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+      }`}>
+        {growth > 0 ? '+' : ''}{growth}
+      </span>
+    </div>
+  )}
 </div>

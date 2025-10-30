@@ -25,6 +25,9 @@ links:
     url: https://proofpoint.example.com/admin
   - name: Power Automate Flow
     url: https://make.powerautomate.com/environments/Default-xxxxx/flows/yyyyy
+schedules:
+  - frequency: Event-driven
+    time: On user creation
 api_keys:
   - name: Subscription Notification Manager
     system: Azure AD

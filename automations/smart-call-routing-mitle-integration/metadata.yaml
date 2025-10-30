@@ -28,6 +28,12 @@ links:
     url: https://gitlab.com/atlas41/internal-devops/azure/-/tree/704de2be039b9bc9cdf15d8992b848424d0ac8a8/Mitel-Connectwise%20Contact%20Database
   - name: Azure SQL Database
     url: https://portal.azure.com/#@ntiva.net/resource/subscriptions/140c0639-524b-4e65-a7f1-f490039f13f1/resourceGroups/Azure_Ntiva_Internal_East/providers/Microsoft.Sql/servers/ntazintsql/databases/MITELCALLROUTE/overview
+schedules:
+  - frequency: Every 15 minutes
+    timezone: America/New_York
+  - frequency: Nightly cleanup
+    time: 11:00 PM
+    timezone: America/New_York
 api_keys:
   - name: CWProjectDecomPubKey
     system: ConnectWise Manage

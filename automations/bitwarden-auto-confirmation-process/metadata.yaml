@@ -1,0 +1,44 @@
+name: Bitwarden Auto Confirmation Process
+author: bradley-wyatt
+department: product-management
+status: live
+description: Process customer Bitwarden organizations, identify members that have been invited, accepted, and are waiting for confirmation, and automatically confirm those members to complete their onboarding.
+tags:
+  - bitwarden
+  - azure
+  - powershell
+  - azure-runbooks
+  - logic-apps
+  - forms
+  - hybrid-runbook-worker
+systems:
+  - Bitwarden
+  - Microsoft Forms
+  - Logic Apps
+  - Sentry
+  - Azure
+time_saved_hours_per_month: 6.6
+annual_value_usd: 2500
+created: 2025-06-10
+last_updated: 2025-09-30
+closed: 2025-07-15
+links:
+  - name: Runbook
+    url: hhttps://portal.azure.com/#@ntiva.net/resource/subscriptions/140c0639-524b-4e65-a7f1-f490039f13f1/resourceGroups/rg-hybridRW/providers/Microsoft.Automation/automationAccounts/aa-hybridsherwebapi/runbooks/BitwardenOrganizations/overview
+  - name: Form
+    url: https://forms.office.com/r/XtdCuF5DTK
+  - name: Logic App
+    url: https://portal.azure.com/#@ntiva.net/resource/subscriptions/140c0639-524b-4e65-a7f1-f490039f13f1/resourceGroups/rg-hybridRW/providers/Microsoft.Logic/workflows/ls-bitwardenautoconfirmation/logicApp
+  - name: Source Code
+    url: https://gitlab.com/atlas41/internal-devops/bitwarden/-/tree/main/Auto-Confirmation%20Process?ref_type=heads
+  - name: Hybrid Runbook Worker
+    url: /Users/bradley.wyatt/Git/GitHub/automation-catalog/automations/clear-cost-on-labor-items-in-sales-orders
+  - name: Sentry 
+    url: https://sentry.io/organizations/ntiva/issues/?project=4509123746725888
+schedules:
+  - frequency: On Form submission
+api_keys:
+  - name: Bitwarden API Key
+    system: Bitwarden
+    notes: Oauth 2.0 API key for api.organization
+    url: https://ntiva.itglue.com/4259244/passwords/33830154

@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { loadAutomations, loadEngineers } from '../../utils/data';
 import { marked } from 'marked';
+import MermaidRenderer from '../../components/MermaidRenderer';
 import fs from 'fs';
 import path from 'path';
 
@@ -214,6 +215,7 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
             <div class="prose prose-sm max-w-none dark:prose-invert">
               <div set:html={readmeContent} />
             </div>
+            <MermaidRenderer client:load />
           </div>
         )}
       </div>

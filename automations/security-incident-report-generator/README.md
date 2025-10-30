@@ -4,6 +4,22 @@
 
 This n8n workflow automatically generates Security Incident Reports by extracting ticket data from ConnectWise Manage, gathering security metrics from Liongard, analyzing everything with OpenAI GPT-4.1, and producing a formatted .docx report that gets attached back to the ticket.
 
+## Architecture Overview
+
+```mermaid
+flowchart TD
+    A[ConnectWise Ticket] -->|Status: SIR Review| B[n8n Workflow]
+    B --> C{Already Processed?}
+    C -->|Yes| D[Stop]
+    C -->|No| E[Collect Data]
+    E --> F[ConnectWise Data]
+    E --> G[Liongard Data]
+    F --> H[AI Analysis]
+    G --> H
+    H --> I[Generate .docx]
+    I --> J[Attach to Ticket]
+```
+
 ## How It Works
 
 ### 1. Trigger & Validation
@@ -33,6 +49,30 @@ The workflow collects data from three sources:
 - If environment or inspector not found → sends empty data to avoid workflow failure
 
 ### 3. AI Analysis
+
+```mermaid
+sequenceDiagram
+    participant CW as ConnectWise
+    participant N8N as n8n Workflow
+    participant LG as Liongard
+    participant AI as OpenAI GPT-4.1
+
+    CW->>N8N: Ticket in SIR Review
+    N8N->>CW: Get ticket details
+    CW-->>N8N: Ticket & notes data
+    N8N->>LG: Search for client
+    LG-->>N8N: M365 data (if available)
+    N8N->>AI: Analyze ticket
+    AI-->>N8N: Incident analysis
+    N8N->>AI: Analyze licenses
+    AI-->>N8N: License recommendations
+    N8N->>AI: Analyze secure score
+    AI-->>N8N: Security recommendations
+    N8N->>AI: Generate final report
+    AI-->>N8N: Complete report JSON
+    N8N->>N8N: Build .docx
+    N8N->>CW: Attach document
+```
 
 Three AI analysis steps using OpenAI GPT-4.1:
 

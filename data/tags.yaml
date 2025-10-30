@@ -41,3 +41,12 @@ tags:
   - id: sophos
     name: Sophos
     color: '#ED1C24'
+  - id: bitwarden
+    name: Bitwarden
+    color: '#262261'
+  - id: logic-apps
+    name: Logic Apps
+    color: '#0078D4'
+  - id: forms
+    name: Forms
+    color: '#68217A'

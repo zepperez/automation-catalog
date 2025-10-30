@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { loadAutomations, loadEngineers } from '../../utils/data';
+import { marked } from 'marked';
 import fs from 'fs';
 import path from 'path';
 
@@ -16,11 +17,12 @@ const { automation } = Astro.props;
 const engineers = loadEngineers();
 const engineer = engineers.find(e => e.id === automation.author);
 
-// Load README if it exists
+// Load README if it exists and convert markdown to HTML
 let readmeContent = '';
 const readmePath = path.join(process.cwd(), 'automations', automation.id, 'README.md');
 if (fs.existsSync(readmePath)) {
-  readmeContent = fs.readFileSync(readmePath, 'utf8');
+  const markdownContent = fs.readFileSync(readmePath, 'utf8');
+  readmeContent = marked(markdownContent);
 }
 
 const formatDate = (dateStr: string) => {

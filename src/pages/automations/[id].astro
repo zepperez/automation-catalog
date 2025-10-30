@@ -22,7 +22,7 @@ let readmeContent = '';
 const readmePath = path.join(process.cwd(), 'automations', automation.id, 'README.md');
 if (fs.existsSync(readmePath)) {
   const markdownContent = fs.readFileSync(readmePath, 'utf8');
-  readmeContent = marked(markdownContent);
+  readmeContent = await marked.parse(markdownContent);
 }
 
 const formatDate = (dateStr: string) => {

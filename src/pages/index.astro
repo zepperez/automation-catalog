@@ -29,7 +29,7 @@ const generateTimeSeriesData = () => {
   }
 
   // Calculate cumulative time saved for each month
-  months.forEach((monthData, index) => {
+  months.forEach((monthData) => {
     // Sum time saved from all automations created up to this month
     const timeSavedUpToThisMonth = automations
       .filter(a => {

@@ -42,6 +42,32 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+const getStatusBadgeClass = (status: string) => {
+  switch (status) {
+    case 'live':
+      return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300';
+    case 'development':
+      return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300';
+    case 'backlog':
+      return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
+    default:
+      return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300';
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'live':
+      return 'Live';
+    case 'development':
+      return 'Development';
+    case 'backlog':
+      return 'Backlog';
+    default:
+      return status;
+  }
+};
+
 // Pre-process API keys with their styles
 const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
   let status = 'Valid';
@@ -88,9 +114,14 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
           <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{automation.name}</h1>
           <p class="text-lg text-gray-600 dark:text-gray-400">{automation.description}</p>
         </div>
-        <span class="badge bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 capitalize text-lg px-4 py-2">
-          {automation.department}
-        </span>
+        <div class="flex flex-col gap-2 items-end">
+          <span class={`badge ${getStatusBadgeClass(automation.status)} text-lg px-4 py-2`}>
+            {getStatusLabel(automation.status)}
+          </span>
+          <span class="badge bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 capitalize text-lg px-4 py-2">
+            {automation.department}
+          </span>
+        </div>
       </div>
 
       <!-- Tags -->

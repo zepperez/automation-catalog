@@ -175,11 +175,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: pnpm/action-setup@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          version: 9
-      - run: pnpm install
-      - run: pnpm run build
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -202,13 +204,13 @@ jobs:
 ### Prerequisites
 
 * Node.js 20+
-* PNPM or NPM
+* npm (included with Node.js)
 
 ### Run Locally
 
 ```bash
-pnpm install
-pnpm run dev
+npm install
+npm run dev
 ```
 
 Then open: `http://localhost:4321`

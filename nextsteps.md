@@ -20,7 +20,7 @@ Before you begin, ensure you have:
 - ✅ An active Azure subscription
 - ✅ A GitHub account with this repository
 - ✅ Azure CLI installed (optional, but recommended)
-- ✅ Node.js 20+ and pnpm installed for local development
+- ✅ Node.js 20+ and npm installed for local development
 
 ---
 
@@ -110,10 +110,10 @@ Before pushing to GitHub, test locally:
 cd automation-catalog
 
 # Install dependencies
-pnpm install
+npm install
 
 # Run dev server
-pnpm run dev
+npm run dev
 ```
 
 Visit `http://localhost:4321` to verify the site works locally.
@@ -215,16 +215,16 @@ The site will automatically rebuild and deploy!
 
 ```bash
 # Install dependencies (first time only)
-pnpm install
+npm install
 
 # Start dev server with hot reload
-pnpm run dev
+npm run dev
 
 # Build for production (test before deploying)
-pnpm run build
+npm run build
 
 # Preview production build locally
-pnpm run preview
+npm run preview
 ```
 
 ### Project Structure
@@ -300,7 +300,7 @@ tags:
    - Missing required fields in metadata.yaml
    - TypeScript errors in custom components
 
-**Fix:** Run `pnpm run build` locally to catch errors before pushing
+**Fix:** Run `npm run build` locally to catch errors before pushing
 
 ### Deployment Token Invalid
 
@@ -329,14 +329,14 @@ tags:
 
 ```bash
 # Clear node_modules and reinstall
-rm -rf node_modules pnpm-lock.yaml
-pnpm install
+rm -rf node_modules package-lock.json
+npm install
 
 # Check Node.js version (must be 20+)
 node --version
 
 # Try running with verbose logging
-pnpm run dev --verbose
+npm run dev --verbose
 ```
 
 ---
@@ -385,13 +385,13 @@ Run periodically to keep dependencies up-to-date:
 
 ```bash
 # Update all dependencies
-pnpm update
+npm update
 
 # Check for outdated packages
-pnpm outdated
+npm outdated
 
 # Test after updates
-pnpm run build
+npm run build
 ```
 
 ### Backup Your Data

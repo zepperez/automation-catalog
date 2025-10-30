@@ -212,50 +212,26 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
       <!-- Sidebar -->
       <div class="space-y-6">
         <!-- Quick Links -->
-        <div class="card p-6">
-          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Quick Links</h2>
-          <div class="space-y-3">
-            {automation.links.runbook && (
-              <a
-                href={automation.links.runbook}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="block p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <div class="flex items-center space-x-2">
-                  <span class="text-xl">📖</span>
-                  <span class="font-medium text-gray-900 dark:text-gray-100">Runbook</span>
-                </div>
-              </a>
-            )}
-            {automation.links.sentry && (
-              <a
-                href={automation.links.sentry}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="block p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <div class="flex items-center space-x-2">
-                  <span class="text-xl">🔍</span>
-                  <span class="font-medium text-gray-900 dark:text-gray-100">Sentry</span>
-                </div>
-              </a>
-            )}
-            {automation.links.repo && (
-              <a
-                href={automation.links.repo}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="block p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <div class="flex items-center space-x-2">
-                  <span class="text-xl">💻</span>
-                  <span class="font-medium text-gray-900 dark:text-gray-100">Source Code</span>
-                </div>
-              </a>
-            )}
+        {automation.links && automation.links.length > 0 && (
+          <div class="card p-6">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Quick Links</h2>
+            <div class="space-y-3">
+              {automation.links.map(link => (
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xl">🔗</span>
+                    <span class="font-medium text-gray-900 dark:text-gray-100">{link.name}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <!-- API Keys & Credentials -->
         {processedApiKeys.length > 0 && (

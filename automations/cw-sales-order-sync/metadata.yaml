@@ -18,9 +18,12 @@ annual_value_usd: 36000
 created: 2024-06-01
 last_updated: 2025-10-15
 links:
-  runbook: https://docs.example.com/runbooks/cw-sales-order-sync
-  sentry: https://sentry.io/organizations/example/cw-sales-order-sync
-  repo: https://dev.azure.com/example/automation/_git/cw-sales-order-sync
+  - name: Runbook
+    url: https://docs.example.com/runbooks/cw-sales-order-sync
+  - name: Sentry
+    url: https://sentry.io/organizations/example/cw-sales-order-sync
+  - name: Source Code
+    url: https://dev.azure.com/example/automation/_git/cw-sales-order-sync
 api_keys:
   - name: CW_API_KEY
     system: ConnectWise Manage

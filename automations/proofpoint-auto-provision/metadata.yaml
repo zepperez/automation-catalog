@@ -15,9 +15,16 @@ annual_value_usd: 12000
 created: 2025-10-30
 last_updated: 2025-10-30
 links:
-  runbook: https://docs.example.com/runbooks/azure-group-sync
-  sentry: https://sentry.io/organizations/example/azure-group-sync
-  repo: https://dev.azure.com/example/automation/_git/azure-group-sync
+  - name: Runbook
+    url: https://docs.example.com/runbooks/proofpoint-auto-provision
+  - name: Sentry
+    url: https://sentry.io/organizations/example/proofpoint-auto-provision
+  - name: Source Code
+    url: https://dev.azure.com/example/automation/_git/proofpoint-auto-provision
+  - name: Proofpoint Admin
+    url: https://proofpoint.example.com/admin
+  - name: Power Automate Flow
+    url: https://make.powerautomate.com/environments/Default-xxxxx/flows/yyyyy
 api_keys:
   - name: Subscription Notification Manager
     system: Azure AD

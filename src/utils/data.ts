@@ -2,6 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 
+export interface AutomationLink {
+  name: string;
+  url: string;
+}
+
 export interface Automation {
   id: string;
   name: string;
@@ -15,11 +20,7 @@ export interface Automation {
   annual_value_usd: number;
   created: string;
   last_updated: string;
-  links: {
-    runbook?: string;
-    sentry?: string;
-    repo?: string;
-  };
+  links?: AutomationLink[];
   api_keys?: ApiKey[];
   diagramPath?: string;
   readmePath?: string;

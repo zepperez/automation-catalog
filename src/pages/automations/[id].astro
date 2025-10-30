@@ -95,7 +95,11 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
   return {
     ...key,
     status,
-    statusClass: (isExpired || isExpiringSoon) ? 'text-red-600 dark:text-red-400' : isWarning ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'
+    statusClass: (isExpired || isExpiringSoon)
+      ? 'text-red-600 dark:text-red-400'
+      : isWarning
+      ? 'text-yellow-600 dark:text-yellow-400'
+      : 'text-green-600 dark:text-green-400'
   };
 }) : [];
 ---
@@ -156,7 +160,19 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
       <!-- Author -->
       {engineer && (
         <div class="flex items-center space-x-3 pt-4 border-t dark:border-gray-700">
-          <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-lg">
+          {engineer.avatar ? (
+            <img
+              src={engineer.avatar}
+              alt={engineer.name}
+              class="w-12 h-12 rounded-full object-cover border border-gray-300 dark:border-gray-600"
+              loading="lazy"
+              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            />
+          ) : null}
+          <div
+            class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-lg"
+            style={engineer.avatar ? 'display:none;' : ''}
+          >
             {engineer.name.split(' ').map(n => n[0]).join('')}
           </div>
           <div>

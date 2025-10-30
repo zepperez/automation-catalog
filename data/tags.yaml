@@ -38,3 +38,6 @@ tags:
   - id: hybrid-runbook-worker
     name: Hybrid Runbook Worker
     color: '#1A4EBB'
+  - id: sophos
+    name: Sophos
+    color: '#ED1C24'

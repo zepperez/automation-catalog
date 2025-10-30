@@ -19,6 +19,7 @@ time_saved_hours_per_month: 332.25
 annual_value_usd: 36700
 created: 2025-06-01
 last_updated: 2025-10-15
+closed: 2025-07-01
 links:
   - name: Runbook
     url: https://portal.azure.com/#@ntiva.net/resource/subscriptions/140c0639-524b-4e65-a7f1-f490039f13f1/resourceGroups/rg-hybridRW/providers/Microsoft.Automation/automationAccounts/aa-hybridsherwebapi/overview

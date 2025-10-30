@@ -16,6 +16,7 @@ time_saved_hours_per_month: 6.6
 annual_value_usd: 2500
 created: 2025-06-10
 last_updated: 2025-09-30
+closed: 2025-07-15
 links:
   - name: Runbook
     url: https://portal.azure.com/#@ntiva.net/resource/subscriptions/140c0639-524b-4e65-a7f1-f490039f13f1/resourceGroups/Ntiva_Automation/providers/Microsoft.Automation/automationAccounts/aa-connectwisemanageAPI/runbooks/Opportunity_Conversion_Cleanup/overview

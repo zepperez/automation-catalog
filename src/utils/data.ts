@@ -27,6 +27,7 @@ export interface Automation {
   annual_value_usd: number;
   created: string;
   last_updated: string;
+  closed?: string;
   links?: AutomationLink[];
   schedules?: Schedule[];
   api_keys?: ApiKey[];

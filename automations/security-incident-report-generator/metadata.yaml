@@ -17,8 +17,3 @@ last_updated: 2025-10-29
 links:
   - name: Source Code
     url: https://gitlab.com/atlas41/internal-devops/connectwise-manage/-/tree/fcc15ce00ac31b0fa3c3e82a581634a16558b7e6/Tickets/Security%20Incident%20Reporting
-api_keys:
-  - name: M365_APP_SECRET
-    system: Microsoft 365
-    expiration: 2026-06-01
-    notes: App registration for user and license management

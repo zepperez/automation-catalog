@@ -329,7 +329,7 @@ tags:
 
 ```bash
 # Clear node_modules and reinstall
-rm -rf node_modules package-lock.json
+rm -rf node_modules npm-lock.yaml
 npm install
 
 # Check Node.js version (must be 20+)

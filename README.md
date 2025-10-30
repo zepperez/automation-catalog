@@ -217,21 +217,23 @@ Then open: `http://localhost:4321`
 
 ---
 
-## 📘 Contribution Guidelines
+## 📘 Adding New Automations
 
-### Adding a New Automation
+**Want to add a new automation to the catalog?** See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the complete guide!
 
-1. Create a new folder under `/automations/<name>/`
-2. Add a `metadata.yaml`, `diagram.svg`, and optional `README.md`
-3. Commit and push changes
-4. The GitHub Action will rebuild and redeploy the catalog
+**Quick start:**
+1. Create folder: `automations/your-automation-name/`
+2. Add `metadata.yaml` with automation details
+3. Add `diagram.svg` from draw.io
+4. Commit and push - the dashboard updates automatically! 🎉
 
-### Updating Expiration Dates
+**All metrics auto-update:**
+- ✅ Total automation count
+- ✅ Time saved calculations
+- ✅ Time saved trend chart (based on creation dates)
+- ✅ Annual value totals
+- ✅ Department breakdowns
+- ✅ Expiring keys calendar
 
-Edit `/data/api-keys.json` or the relevant `metadata.yaml` file.
-
-### Metadata Validation
-
-All YAML files are checked against `/data/schema/metadata.schema.json` before build.
-Invalid files will cause the GitHub Action to fail.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed instructions, templates, and best practices.
 

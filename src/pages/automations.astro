@@ -13,8 +13,8 @@ const allTags = Array.from(new Set(automations.flatMap(a => a.tags))).sort();
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="mb-8">
-      <h1 class="text-4xl font-bold text-gray-900">All Automations</h1>
-      <p class="mt-2 text-gray-600">
+      <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100">All Automations</h1>
+      <p class="mt-2 text-gray-600 dark:text-gray-400">
         Browse and filter {automations.length} automations across all departments
       </p>
     </div>
@@ -24,25 +24,25 @@ const allTags = Array.from(new Set(automations.flatMap(a => a.tags))).sort();
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Search -->
         <div>
-          <label for="search" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Search
           </label>
           <input
             type="text"
             id="search"
             placeholder="Search automations..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
         <!-- Department Filter -->
         <div>
-          <label for="department" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="department" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Department
           </label>
           <select
             id="department"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">All Departments</option>
             {departments.map((dept) => (
@@ -53,12 +53,12 @@ const allTags = Array.from(new Set(automations.flatMap(a => a.tags))).sort();
 
         <!-- Tag Filter -->
         <div>
-          <label for="tag" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="tag" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Tag
           </label>
           <select
             id="tag"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">All Tags</option>
             {allTags.map((tag) => (
@@ -71,7 +71,7 @@ const allTags = Array.from(new Set(automations.flatMap(a => a.tags))).sort();
         <div class="flex items-end">
           <button
             id="clearFilters"
-            class="w-full px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition-colors"
+            class="w-full px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 transition-colors"
           >
             Clear Filters
           </button>
@@ -81,7 +81,7 @@ const allTags = Array.from(new Set(automations.flatMap(a => a.tags))).sort();
 
     <!-- Results Count -->
     <div class="mb-4">
-      <p class="text-gray-600">
+      <p class="text-gray-600 dark:text-gray-400">
         Showing <span id="resultsCount" class="font-semibold">{automations.length}</span> automation(s)
       </p>
     </div>
@@ -99,39 +99,39 @@ const allTags = Array.from(new Set(automations.flatMap(a => a.tags))).sort();
         >
           <a href={`/automations/${automation.id}`} class="card block p-6 hover:scale-[1.02] transition-transform h-full">
             <div class="flex justify-between items-start mb-3">
-              <h3 class="text-xl font-bold text-gray-900">{automation.name}</h3>
-              <span class="badge bg-primary-100 text-primary-700 capitalize">
+              <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">{automation.name}</h3>
+              <span class="badge bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 capitalize">
                 {automation.department}
               </span>
             </div>
 
-            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
               {automation.description}
             </p>
 
             <div class="flex flex-wrap gap-2 mb-4">
               {automation.tags.slice(0, 3).map(tag => (
-                <span class="badge bg-gray-100 text-gray-700">
+                <span class="badge bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                   {tag}
                 </span>
               ))}
               {automation.tags.length > 3 && (
-                <span class="badge bg-gray-100 text-gray-500">
+                <span class="badge bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                   +{automation.tags.length - 3} more
                 </span>
               )}
             </div>
 
-            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div>
-                <p class="text-xs text-gray-500">Time Saved/Month</p>
-                <p class="text-lg font-semibold text-gray-900">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Time Saved/Month</p>
+                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   {automation.time_saved_hours_per_month}h
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-500">Annual Value</p>
-                <p class="text-lg font-semibold text-green-600">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Annual Value</p>
+                <p class="text-lg font-semibold text-green-600 dark:text-green-400">
                   ${automation.annual_value_usd.toLocaleString()}
                 </p>
               </div>
@@ -143,10 +143,10 @@ const allTags = Array.from(new Set(automations.flatMap(a => a.tags))).sort();
 
     <!-- No Results Message -->
     <div id="noResults" class="hidden text-center py-12">
-      <p class="text-gray-500 text-lg">No automations found matching your filters.</p>
+      <p class="text-gray-500 dark:text-gray-400 text-lg">No automations found matching your filters.</p>
       <button
         onclick="document.getElementById('clearFilters').click()"
-        class="mt-4 text-primary-600 hover:text-primary-700 font-medium"
+        class="mt-4 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
       >
         Clear filters and try again
       </button>

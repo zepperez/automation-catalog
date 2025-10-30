@@ -67,7 +67,7 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
   return {
     ...key,
     status,
-    statusClass: (isExpired || isExpiringSoon) ? 'text-red-600' : isWarning ? 'text-yellow-600' : 'text-green-600'
+    statusClass: (isExpired || isExpiringSoon) ? 'text-red-600 dark:text-red-400' : isWarning ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'
   };
 }) : [];
 ---
@@ -75,7 +75,7 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
 <BaseLayout title={`${automation.name} - Automation Catalog`} description={automation.description}>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Back Button -->
-    <a href="/automations" class="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6">
+    <a href="/automations" class="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-6">
       ← Back to Automations
     </a>
 
@@ -83,10 +83,10 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
     <div class="card p-8 mb-6">
       <div class="flex justify-between items-start mb-4">
         <div>
-          <h1 class="text-4xl font-bold text-gray-900 mb-2">{automation.name}</h1>
-          <p class="text-lg text-gray-600">{automation.description}</p>
+          <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{automation.name}</h1>
+          <p class="text-lg text-gray-600 dark:text-gray-400">{automation.description}</p>
         </div>
-        <span class="badge bg-primary-100 text-primary-700 capitalize text-lg px-4 py-2">
+        <span class="badge bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 capitalize text-lg px-4 py-2">
           {automation.department}
         </span>
       </div>
@@ -94,7 +94,7 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
       <!-- Tags -->
       <div class="flex flex-wrap gap-2 mb-6">
         {automation.tags.map(tag => (
-          <span class="badge bg-gray-100 text-gray-700 text-sm">
+          <span class="badge bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm">
             {tag}
           </span>
         ))}
@@ -103,32 +103,32 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
       <!-- Stats Grid -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div class="border-l-4 border-primary-500 pl-4">
-          <p class="text-sm text-gray-600">Time Saved/Month</p>
-          <p class="text-3xl font-bold text-gray-900">{automation.time_saved_hours_per_month}h</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Time Saved/Month</p>
+          <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{automation.time_saved_hours_per_month}h</p>
         </div>
         <div class="border-l-4 border-green-500 pl-4">
-          <p class="text-sm text-gray-600">Annual Value</p>
-          <p class="text-3xl font-bold text-green-600">{formatCurrency(automation.annual_value_usd)}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Annual Value</p>
+          <p class="text-3xl font-bold text-green-600 dark:text-green-400">{formatCurrency(automation.annual_value_usd)}</p>
         </div>
         <div class="border-l-4 border-blue-500 pl-4">
-          <p class="text-sm text-gray-600">Created</p>
-          <p class="text-lg font-semibold text-gray-900">{formatDate(automation.created)}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Created</p>
+          <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">{formatDate(automation.created)}</p>
         </div>
         <div class="border-l-4 border-purple-500 pl-4">
-          <p class="text-sm text-gray-600">Last Updated</p>
-          <p class="text-lg font-semibold text-gray-900">{formatDate(automation.last_updated)}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Last Updated</p>
+          <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">{formatDate(automation.last_updated)}</p>
         </div>
       </div>
 
       <!-- Author -->
       {engineer && (
-        <div class="flex items-center space-x-3 pt-4 border-t">
-          <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-bold text-lg">
+        <div class="flex items-center space-x-3 pt-4 border-t dark:border-gray-700">
+          <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold text-lg">
             {engineer.name.split(' ').map(n => n[0]).join('')}
           </div>
           <div>
-            <p class="font-semibold text-gray-900">{engineer.name}</p>
-            <p class="text-sm text-gray-600">{engineer.role}</p>
+            <p class="font-semibold text-gray-900 dark:text-gray-100">{engineer.name}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{engineer.role}</p>
           </div>
         </div>
       )}
@@ -141,8 +141,8 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
         <!-- Diagram -->
         {automation.diagramPath && (
           <div class="card p-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Architecture Diagram</h2>
-            <div class="bg-gray-50 rounded-lg p-4">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Architecture Diagram</h2>
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <img
                 src={automation.diagramPath}
                 alt={`${automation.name} architecture diagram`}
@@ -155,8 +155,8 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
         <!-- README Content -->
         {readmeContent && (
           <div class="card p-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">Documentation</h2>
-            <div class="prose prose-sm max-w-none">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Documentation</h2>
+            <div class="prose prose-sm max-w-none dark:prose-invert">
               <div set:html={readmeContent} />
             </div>
           </div>
@@ -164,12 +164,12 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
 
         <!-- Systems -->
         <div class="card p-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Systems & Integrations</h2>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Systems & Integrations</h2>
           <div class="flex flex-wrap gap-3">
             {automation.systems.map(system => (
-              <div class="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+              <div class="flex items-center space-x-2 bg-gray-50 dark:bg-gray-700 px-4 py-2 rounded-lg">
                 <span class="text-2xl">🔗</span>
-                <span class="font-medium text-gray-900">{system}</span>
+                <span class="font-medium text-gray-900 dark:text-gray-100">{system}</span>
               </div>
             ))}
           </div>
@@ -180,18 +180,18 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
       <div class="space-y-6">
         <!-- Quick Links -->
         <div class="card p-6">
-          <h2 class="text-xl font-bold text-gray-900 mb-4">Quick Links</h2>
+          <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">Quick Links</h2>
           <div class="space-y-3">
             {automation.links.runbook && (
               <a
                 href={automation.links.runbook}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                class="block p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
               >
                 <div class="flex items-center space-x-2">
                   <span class="text-xl">📖</span>
-                  <span class="font-medium text-gray-900">Runbook</span>
+                  <span class="font-medium text-gray-900 dark:text-gray-100">Runbook</span>
                 </div>
               </a>
             )}
@@ -200,11 +200,11 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
                 href={automation.links.sentry}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                class="block p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
               >
                 <div class="flex items-center space-x-2">
                   <span class="text-xl">🔍</span>
-                  <span class="font-medium text-gray-900">Sentry</span>
+                  <span class="font-medium text-gray-900 dark:text-gray-100">Sentry</span>
                 </div>
               </a>
             )}
@@ -213,11 +213,11 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
                 href={automation.links.repo}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="block p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                class="block p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
               >
                 <div class="flex items-center space-x-2">
                   <span class="text-xl">💻</span>
-                  <span class="font-medium text-gray-900">Source Code</span>
+                  <span class="font-medium text-gray-900 dark:text-gray-100">Source Code</span>
                 </div>
               </a>
             )}
@@ -227,24 +227,24 @@ const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
         <!-- API Keys & Credentials -->
         {processedApiKeys.length > 0 && (
           <div class="card p-6">
-            <h2 class="text-xl font-bold text-gray-900 mb-4">API Keys & Credentials</h2>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">API Keys & Credentials</h2>
             <div class="space-y-4">
               {processedApiKeys.map(key => (
-                <div class="border-l-4 border-gray-300 pl-4 py-2">
+                <div class="border-l-4 border-gray-300 dark:border-gray-600 pl-4 py-2">
                   <div class="flex justify-between items-start mb-1">
-                    <h3 class="font-semibold text-gray-900">{key.name}</h3>
+                    <h3 class="font-semibold text-gray-900 dark:text-gray-100">{key.name}</h3>
                     <span class={`text-xs font-medium ${key.statusClass}`}>
                       {key.status}
                     </span>
                   </div>
-                  <p class="text-sm text-gray-600 mb-1">{key.system}</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">{key.system}</p>
                   {key.expiration && (
-                    <p class="text-xs text-gray-500">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
                       Expires: {formatDate(key.expiration)}
                     </p>
                   )}
                   {key.notes && (
-                    <p class="text-xs text-gray-500 mt-2 italic">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">
                       {key.notes}
                     </p>
                   )}

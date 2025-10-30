@@ -16,15 +16,15 @@ const { title, value, subtitle, icon = '📊', trend } = Astro.props;
 <div class="card p-6">
   <div class="flex items-start justify-between">
     <div class="flex-1">
-      <p class="text-sm font-medium text-gray-600">{title}</p>
-      <p class="mt-2 text-3xl font-bold text-gray-900">{value}</p>
+      <p class="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
+      <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
       {subtitle && (
-        <p class="mt-1 text-sm text-gray-500">{subtitle}</p>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
       )}
       {trend && (
-        <div class={`mt-2 flex items-center text-sm ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+        <div class={`mt-2 flex items-center text-sm ${trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
           <span>{trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%</span>
-          <span class="ml-2 text-gray-500">vs last month</span>
+          <span class="ml-2 text-gray-500 dark:text-gray-400">vs last month</span>
         </div>
       )}
     </div>

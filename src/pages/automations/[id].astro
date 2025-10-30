@@ -39,6 +39,37 @@ const formatCurrency = (amount: number) => {
     maximumFractionDigits: 0
   }).format(amount);
 };
+
+// Pre-process API keys with their styles
+const processedApiKeys = automation.api_keys ? automation.api_keys.map(key => {
+  let status = 'Valid';
+  let isExpired = false;
+  let isExpiringSoon = false;
+  let isWarning = false;
+
+  if (key.expiration) {
+    const daysUntilExpiration = Math.ceil(
+      (new Date(key.expiration).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (daysUntilExpiration < 0) {
+      status = 'Expired';
+      isExpired = true;
+    } else if (daysUntilExpiration <= 30) {
+      status = `Expires in ${daysUntilExpiration}d`;
+      isExpiringSoon = true;
+    } else if (daysUntilExpiration <= 90) {
+      status = `Expires in ${daysUntilExpiration}d`;
+      isWarning = true;
+    }
+  }
+
+  return {
+    ...key,
+    status,
+    statusClass: (isExpired || isExpiringSoon) ? 'text-red-600' : isWarning ? 'text-yellow-600' : 'text-green-600'
+  };
+}) : [];
 ---
 
 <BaseLayout title={`${automation.name} - Automation Catalog`} description={automation.description}>
@@ -194,53 +225,31 @@ const formatCurrency = (amount: number) => {
         </div>
 
         <!-- API Keys & Credentials -->
-        {automation.api_keys && automation.api_keys.length > 0 && (
+        {processedApiKeys.length > 0 && (
           <div class="card p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-4">API Keys & Credentials</h2>
             <div class="space-y-4">
-              {automation.api_keys.map(key => {
-                let status = 'Valid';
-                let statusColor = 'text-green-600';
-
-                if (key.expiration) {
-                  const daysUntilExpiration = Math.ceil(
-                    (new Date(key.expiration).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-                  );
-
-                  if (daysUntilExpiration < 0) {
-                    status = 'Expired';
-                    statusColor = 'text-red-600';
-                  } else if (daysUntilExpiration <= 30) {
-                    status = `Expires in ${daysUntilExpiration}d`;
-                    statusColor = 'text-red-600';
-                  } else if (daysUntilExpiration <= 90) {
-                    status = `Expires in ${daysUntilExpiration}d`;
-                    statusColor = 'text-yellow-600';
-                  }
-                }
-
-                return (
-                  <div class="border-l-4 border-gray-300 pl-4 py-2">
-                    <div class="flex justify-between items-start mb-1">
-                      <h3 class="font-semibold text-gray-900">{key.name}</h3>
-                      <span class={`text-xs font-medium ${statusColor}`}>
-                        {status}
-                      </span>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-1">{key.system}</p>
-                    {key.expiration && (
-                      <p class="text-xs text-gray-500">
-                        Expires: {formatDate(key.expiration)}
-                      </p>
-                    )}
-                    {key.notes && (
-                      <p class="text-xs text-gray-500 mt-2 italic">
-                        {key.notes}
-                      </p>
-                    )}
+              {processedApiKeys.map(key => (
+                <div class="border-l-4 border-gray-300 pl-4 py-2">
+                  <div class="flex justify-between items-start mb-1">
+                    <h3 class="font-semibold text-gray-900">{key.name}</h3>
+                    <span class={`text-xs font-medium ${key.statusClass}`}>
+                      {key.status}
+                    </span>
                   </div>
-                );
-              })}
+                  <p class="text-sm text-gray-600 mb-1">{key.system}</p>
+                  {key.expiration && (
+                    <p class="text-xs text-gray-500">
+                      Expires: {formatDate(key.expiration)}
+                    </p>
+                  )}
+                  {key.notes && (
+                    <p class="text-xs text-gray-500 mt-2 italic">
+                      {key.notes}
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}

@@ -56,6 +56,28 @@ const formatDate = (date: Date) => {
 const getDaysUntilExpiration = (date: Date) => {
   return Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 };
+
+// Pre-process items with their styles
+const processedKeysByMonth = Array.from(keysByMonth.entries()).map(([month, keys]) => ({
+  month,
+  hasUrgent: keys.some(k => getDaysUntilExpiration(k.expiration) <= 30),
+  items: keys.map(item => {
+    const daysUntil = getDaysUntilExpiration(item.expiration);
+    const isExpired = daysUntil < 0;
+    const isUrgent = daysUntil > 0 && daysUntil <= 30;
+    const isWarning = daysUntil > 30 && daysUntil <= 90;
+
+    return {
+      ...item,
+      daysUntil,
+      isExpired,
+      isUrgent,
+      isWarning,
+      borderClass: isExpired ? 'border-red-700' : isUrgent ? 'border-red-500' : isWarning ? 'border-yellow-500' : 'border-green-500',
+      badgeClass: isExpired ? 'bg-red-200 text-red-900' : isUrgent ? 'bg-red-100 text-red-700' : isWarning ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700',
+    };
+  })
+}));
 ---
 
 <BaseLayout title="Expiration Calendar - Automation Catalog">
@@ -107,75 +129,54 @@ const getDaysUntilExpiration = (date: Date) => {
 
     <!-- Timeline by Month -->
     <div class="space-y-6">
-      {Array.from(keysByMonth.entries()).map(([month, keys]) => {
-        const hasUrgent = keys.some(k => getDaysUntilExpiration(k.expiration) <= 30);
-
-        return (
-          <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="text-2xl font-bold text-gray-900">{month}</h2>
-              {hasUrgent && (
-                <span class="badge bg-red-100 text-red-700">
-                  ⚠️ Urgent
-                </span>
-              )}
-            </div>
-
-            <div class="space-y-4">
-              {keys.map(item => {
-                const daysUntil = getDaysUntilExpiration(item.expiration);
-                let urgencyColor = 'border-green-500';
-                let urgencyBadge = 'bg-green-100 text-green-700';
-
-                if (daysUntil < 0) {
-                  urgencyColor = 'border-red-700';
-                  urgencyBadge = 'bg-red-200 text-red-900';
-                } else if (daysUntil <= 30) {
-                  urgencyColor = 'border-red-500';
-                  urgencyBadge = 'bg-red-100 text-red-700';
-                } else if (daysUntil <= 90) {
-                  urgencyColor = 'border-yellow-500';
-                  urgencyBadge = 'bg-yellow-100 text-yellow-700';
-                }
-
-                return (
-                  <div class={`border-l-4 ${urgencyColor} pl-4 py-3 bg-gray-50 rounded-r-lg`}>
-                    <div class="flex justify-between items-start">
-                      <div class="flex-1">
-                        <div class="flex items-center space-x-3 mb-2">
-                          <h3 class="font-bold text-gray-900">{item.key}</h3>
-                          <span class={`badge ${urgencyBadge} text-xs`}>
-                            {daysUntil < 0 ? 'EXPIRED' : `${daysUntil} days`}
-                          </span>
-                        </div>
-                        <p class="text-sm text-gray-600 mb-1">
-                          <span class="font-medium">System:</span> {item.system}
-                        </p>
-                        <a
-                          href={`/automations/${item.automationId}`}
-                          class="text-sm text-primary-600 hover:underline"
-                        >
-                          {item.automationName} →
-                        </a>
-                        {item.notes && (
-                          <p class="text-xs text-gray-500 mt-2 italic">
-                            {item.notes}
-                          </p>
-                        )}
-                      </div>
-                      <div class="text-right">
-                        <p class="text-sm font-semibold text-gray-900">
-                          {formatDate(item.expiration)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+      {processedKeysByMonth.map((group) => (
+        <div class="card p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-gray-900">{group.month}</h2>
+            {group.hasUrgent && (
+              <span class="badge bg-red-100 text-red-700">
+                ⚠️ Urgent
+              </span>
+            )}
           </div>
-        );
-      })}
+
+          <div class="space-y-4">
+            {group.items.map((item) => (
+              <div class={`pl-4 py-3 bg-gray-50 rounded-r-lg border-l-4 ${item.borderClass}`}>
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-2">
+                      <h3 class="font-bold text-gray-900">{item.key}</h3>
+                      <span class={`badge text-xs ${item.badgeClass}`}>
+                        {item.daysUntil < 0 ? 'EXPIRED' : `${item.daysUntil} days`}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1">
+                      <span class="font-medium">System:</span> {item.system}
+                    </p>
+                    <a
+                      href={`/automations/${item.automationId}`}
+                      class="text-sm text-primary-600 hover:underline"
+                    >
+                      {item.automationName} →
+                    </a>
+                    {item.notes && (
+                      <p class="text-xs text-gray-500 mt-2 italic">
+                        {item.notes}
+                      </p>
+                    )}
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-900">
+                      {formatDate(item.expiration)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
 
     {apiKeysWithExpiration.length === 0 && (

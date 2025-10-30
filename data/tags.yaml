@@ -17,6 +17,9 @@ tags:
   - id: azure-functions
     name: Azure Functions
     color: '#0062AD'
+  - id: azure-runbooks
+    name: Azure Runbooks
+    color: '#1A4EBB'
   - id: power-automate
     name: Power Automate
     color: '#0066FF'

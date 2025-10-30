@@ -1,0 +1,31 @@
+name: Clear Cost on Labor Items in Sales Orders
+author: bradley-wyatt
+department: finance
+status: live
+description: In Connectwise Manage we want to esure that certain product (labor) sku's have the cost associated to them removed (set to $0.00).
+tags:
+  - connectwise
+  - azure
+  - powershell
+  - power-automate
+  - azure-runbooks
+systems:
+  - Connectwise Manage
+  - Sentry
+  - Azure
+time_saved_hours_per_month: 6.6
+annual_value_usd: 2500
+created: 2025-06-10
+last_updated: 2025-09-30
+links:
+  - name: Runbook
+    url: https://portal.azure.com/#@ntiva.net/resource/subscriptions/140c0639-524b-4e65-a7f1-f490039f13f1/resourceGroups/Ntiva_Automation/providers/Microsoft.Automation/automationAccounts/aa-connectwisemanageAPI/runbooks/Opportunity_Conversion_Cleanup/overview
+  - name: Sentry
+    url: https://ntiva-dev.sentry.io/issues/?project=4508728420335616
+  - name: Source Code
+    url: hhttps://gitlab.com/atlas41/internal-devops/connectwise-manage/-/tree/fcc15ce00ac31b0fa3c3e82a581634a16558b7e6/Opportunities/Conversions/Conversion%20Cleanup%20&%20Clear%20Cost%20on%20Labor%20Items%20in%20Sales%20Orders
+api_keys:
+  - name: SalesOppCleanupPublicKey
+    system: Connectwise Manage
+    notes: API member for Connectwise Manage
+    url: https://ntiva.itglue.com/4259244/passwords/33822669

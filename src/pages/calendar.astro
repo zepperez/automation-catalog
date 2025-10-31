@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadAutomations } from '../utils/data';
+import CalendarView from '../components/CalendarView';
 
 // Load all automations (client-side filtering will be applied)
 const automations = loadAutomations();
@@ -35,56 +36,25 @@ automations.forEach(automation => {
 // Sort by expiration date
 apiKeysWithExpiration.sort((a, b) => a.expiration.getTime() - b.expiration.getTime());
 
-// Group by month
-const keysByMonth = new Map<string, typeof apiKeysWithExpiration>();
-
-apiKeysWithExpiration.forEach(item => {
-  const monthKey = item.expiration.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-  if (!keysByMonth.has(monthKey)) {
-    keysByMonth.set(monthKey, []);
-  }
-  keysByMonth.get(monthKey)!.push(item);
-});
-
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-};
+// Convert to serializable format for React component
+const serializedKeys = apiKeysWithExpiration.map(key => ({
+  key: key.key,
+  system: key.system,
+  expiration: key.expiration.toISOString(),
+  automationId: key.automationId,
+  automationName: key.automationName,
+  notes: key.notes,
+}));
 
 const getDaysUntilExpiration = (date: Date) => {
   return Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 };
-
-// Pre-process items with their styles
-const processedKeysByMonth = Array.from(keysByMonth.entries()).map(([month, keys]) => ({
-  month,
-  hasUrgent: keys.some(k => getDaysUntilExpiration(k.expiration) <= 30),
-  items: keys.map(item => {
-    const daysUntil = getDaysUntilExpiration(item.expiration);
-    const isExpired = daysUntil < 0;
-    const isUrgent = daysUntil > 0 && daysUntil <= 30;
-    const isWarning = daysUntil > 30 && daysUntil <= 90;
-
-    return {
-      ...item,
-      daysUntil,
-      isExpired,
-      isUrgent,
-      isWarning,
-      borderClass: isExpired ? 'border-red-700' : isUrgent ? 'border-red-500' : isWarning ? 'border-yellow-500' : 'border-green-500',
-      badgeClass: isExpired ? 'bg-red-200 text-red-900' : isUrgent ? 'bg-red-100 text-red-700' : isWarning ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700',
-    };
-  })
-}));
 ---
 
 <BaseLayout title="Expiration Calendar - Automation Catalog">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
-    <div class="mb-8">
+    <div class="mb-6">
       <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100">Expiration Calendar</h1>
       <p class="mt-2 text-gray-600 dark:text-gray-400">
         Track API keys and credentials expiration dates
@@ -92,95 +62,46 @@ const processedKeysByMonth = Array.from(keysByMonth.entries()).map(([month, keys
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="card p-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div class="card p-5">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Keys Tracked</p>
-            <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{apiKeysWithExpiration.length}</p>
+          <div class="flex-1">
+            <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Total Keys Tracked</p>
+            <p id="totalKeys" class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{apiKeysWithExpiration.length}</p>
           </div>
-          <div class="text-4xl opacity-80">🔑</div>
+          <div class="text-3xl opacity-70 ml-3">🔑</div>
         </div>
       </div>
 
-      <div class="card p-6">
+      <div class="card p-5">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Expiring in 30 Days</p>
-            <p class="mt-2 text-3xl font-bold text-red-600 dark:text-red-400">
+          <div class="flex-1">
+            <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Expiring in 30 Days</p>
+            <p id="expiring30" class="mt-1 text-2xl font-bold text-red-600 dark:text-red-400">
               {apiKeysWithExpiration.filter(k => getDaysUntilExpiration(k.expiration) <= 30 && getDaysUntilExpiration(k.expiration) > 0).length}
             </p>
           </div>
-          <div class="text-4xl opacity-80">⚠️</div>
+          <div class="text-3xl opacity-70 ml-3">⚠️</div>
         </div>
       </div>
 
-      <div class="card p-6">
+      <div class="card p-5">
         <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Expiring in 90 Days</p>
-            <p class="mt-2 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+          <div class="flex-1">
+            <p class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">Expiring in 90 Days</p>
+            <p id="expiring90" class="mt-1 text-2xl font-bold text-yellow-600 dark:text-yellow-400">
               {apiKeysWithExpiration.filter(k => getDaysUntilExpiration(k.expiration) <= 90 && getDaysUntilExpiration(k.expiration) > 30).length}
             </p>
           </div>
-          <div class="text-4xl opacity-80">📅</div>
+          <div class="text-3xl opacity-70 ml-3">📅</div>
         </div>
       </div>
     </div>
 
-    <!-- Timeline by Month -->
-    <div class="space-y-6">
-      {processedKeysByMonth.map((group) => (
-        <div class="card p-6">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{group.month}</h2>
-            {group.hasUrgent && (
-              <span class="badge bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300">
-                ⚠️ Urgent
-              </span>
-            )}
-          </div>
-
-          <div class="space-y-4">
-            {group.items.map((item) => (
-              <div class={`pl-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-r-lg border-l-4 ${item.borderClass}`}>
-                <div class="flex justify-between items-start">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-3 mb-2">
-                      <h3 class="font-bold text-gray-900 dark:text-gray-100">{item.key}</h3>
-                      <span class={`badge text-xs ${item.badgeClass}`}>
-                        {item.daysUntil < 0 ? 'EXPIRED' : `${item.daysUntil} days`}
-                      </span>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      <span class="font-medium">System:</span> {item.system}
-                    </p>
-                    <a
-                      href={`/automations/${item.automationId}`}
-                      class="text-sm text-primary-600 dark:text-primary-400 hover:underline"
-                    >
-                      {item.automationName} →
-                    </a>
-                    {item.notes && (
-                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">
-                        {item.notes}
-                      </p>
-                    )}
-                  </div>
-                  <div class="text-right">
-                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      {formatDate(item.expiration)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    {apiKeysWithExpiration.length === 0 && (
+    <!-- Calendar View -->
+    {apiKeysWithExpiration.length > 0 ? (
+      <CalendarView client:load apiKeys={serializedKeys} />
+    ) : (
       <div class="card p-12 text-center">
         <p class="text-gray-500 dark:text-gray-400 text-lg">
           No API keys or credentials with expiration dates found.
@@ -192,7 +113,7 @@ const processedKeysByMonth = Array.from(keysByMonth.entries()).map(([month, keys
     )}
   </div>
 
-  <script is:inline define:vars={{ automations }}>
+  <script is:inline define:vars={{ automations, serializedKeys }}>
     // Client-side filtering based on URL parameter
     function applyCustomerFilter() {
       const params = new URLSearchParams(window.location.search);
@@ -204,7 +125,6 @@ const processedKeysByMonth = Array.from(keysByMonth.entries()).map(([month, keys
 
       // Filter automations by customer
       const filteredAutomations = automations.filter(a => a.customer === customerFilter);
-      const filteredAutomationIds = new Set(filteredAutomations.map(a => a.id));
 
       // Collect and filter API keys
       const apiKeysWithExpiration = [];
@@ -230,55 +150,29 @@ const processedKeysByMonth = Array.from(keysByMonth.entries()).map(([month, keys
       }
 
       // Update summary cards
-      const summaryCards = document.querySelectorAll('.grid.grid-cols-1.md\\:grid-cols-3 .card');
-      if (summaryCards[0]) {
-        const totalCount = summaryCards[0].querySelector('.text-3xl');
-        if (totalCount) totalCount.textContent = apiKeysWithExpiration.length.toString();
+      const totalKeys = document.getElementById('totalKeys');
+      const expiring30 = document.getElementById('expiring30');
+      const expiring90 = document.getElementById('expiring90');
+
+      if (totalKeys) {
+        totalKeys.textContent = apiKeysWithExpiration.length.toString();
       }
 
-      if (summaryCards[1]) {
-        const expiring30Count = apiKeysWithExpiration.filter(k => {
+      if (expiring30) {
+        const count = apiKeysWithExpiration.filter(k => {
           const days = getDaysUntilExpiration(k.expiration);
           return days <= 30 && days > 0;
         }).length;
-        const expiring30Element = summaryCards[1].querySelector('.text-3xl');
-        if (expiring30Element) expiring30Element.textContent = expiring30Count.toString();
+        expiring30.textContent = count.toString();
       }
 
-      if (summaryCards[2]) {
-        const expiring90Count = apiKeysWithExpiration.filter(k => {
+      if (expiring90) {
+        const count = apiKeysWithExpiration.filter(k => {
           const days = getDaysUntilExpiration(k.expiration);
           return days <= 90 && days > 30;
         }).length;
-        const expiring90Element = summaryCards[2].querySelector('.text-3xl');
-        if (expiring90Element) expiring90Element.textContent = expiring90Count.toString();
+        expiring90.textContent = count.toString();
       }
-
-      // Filter month sections
-      const monthSections = document.querySelectorAll('.space-y-6 > .card');
-      monthSections.forEach(section => {
-        const keyItems = section.querySelectorAll('.space-y-4 > div');
-        let visibleCount = 0;
-
-        keyItems.forEach(item => {
-          const link = item.querySelector('a[href^="/automations/"]');
-          if (link) {
-            const href = link.getAttribute('href');
-            const automationId = href.split('/').pop();
-            if (!filteredAutomationIds.has(automationId)) {
-              item.style.display = 'none';
-            } else {
-              item.style.display = 'block';
-              visibleCount++;
-            }
-          }
-        });
-
-        // Hide entire month section if no keys visible
-        if (visibleCount === 0) {
-          section.style.display = 'none';
-        }
-      });
     }
 
     // Apply filter when page loads

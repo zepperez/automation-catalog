@@ -151,6 +151,20 @@ export default function CalendarView({ apiKeys, automations }: CalendarViewProps
     setSelectedDate(null);
   };
 
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentDate);
+    newDate.setMonth(parseInt(e.target.value));
+    setCurrentDate(newDate);
+    setSelectedDate(null);
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newDate = new Date(currentDate);
+    newDate.setFullYear(parseInt(e.target.value));
+    setCurrentDate(newDate);
+    setSelectedDate(null);
+  };
+
   const goToToday = () => {
     setCurrentDate(new Date());
     setSelectedDate(null);
@@ -237,9 +251,24 @@ export default function CalendarView({ apiKeys, automations }: CalendarViewProps
           </button>
 
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-            </h2>
+            <select
+              value={currentDate.getMonth()}
+              onChange={handleMonthChange}
+              className="px-3 py-2 text-lg font-semibold rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-primary-500 dark:hover:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors cursor-pointer"
+            >
+              {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month, index) => (
+                <option key={index} value={index}>{month}</option>
+              ))}
+            </select>
+            <select
+              value={currentDate.getFullYear()}
+              onChange={handleYearChange}
+              className="px-3 py-2 text-lg font-semibold rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:border-primary-500 dark:hover:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 transition-colors cursor-pointer"
+            >
+              {Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i).map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
             <button
               onClick={goToToday}
               className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"

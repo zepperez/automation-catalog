@@ -24,7 +24,10 @@ interface CalendarViewProps {
   }>;
 }
 
+type ViewMode = 'calendar' | 'list';
+
 export default function CalendarView({ apiKeys }: CalendarViewProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -110,9 +113,63 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
 
   const selectedDayKeys = selectedDate ? getKeysForDay(selectedDate) : [];
 
+  // Group keys by month for list view
+  const keysByMonth = processedKeys.reduce((acc, key) => {
+    const monthKey = key.expiration.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    if (!acc[monthKey]) {
+      acc[monthKey] = [];
+    }
+    acc[monthKey].push(key);
+    return acc;
+  }, {} as Record<string, ApiKeyExpiration[]>);
+
+  const sortedMonths = Object.entries(keysByMonth).sort(([, keysA], [, keysB]) => {
+    return keysA[0].expiration.getTime() - keysB[0].expiration.getTime();
+  });
+
   return (
     <div className="space-y-6">
-      {/* Calendar Header */}
+      {/* View Toggle */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">View Options</h2>
+          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'calendar'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Calendar
+              </div>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                List
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Calendar View */}
+      {viewMode === 'calendar' && (
       <div className="card p-5">
         <div className="flex items-center justify-between mb-6">
           <button
@@ -227,9 +284,10 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
           })}
         </div>
       </div>
+      )}
 
       {/* Selected day details */}
-      {selectedDate && selectedDayKeys.length > 0 && (
+      {viewMode === 'calendar' && selectedDate && selectedDayKeys.length > 0 && (
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -292,6 +350,7 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
       )}
 
       {/* Legend */}
+      {viewMode === 'calendar' && (
       <div className="card p-5">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Color Legend</h3>
         <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">Keys are shown on their expiration date and color-coded by urgency:</p>
@@ -314,6 +373,83 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
           </div>
         </div>
       </div>
+      )}
+
+      {/* List View */}
+      {viewMode === 'list' && (
+        <div className="space-y-6">
+          {sortedMonths.map(([month, keys]) => {
+            const hasUrgent = keys.some(k => k.isUrgent || k.isExpired);
+
+            return (
+              <div key={month} className="card p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{month}</h2>
+                  {hasUrgent && (
+                    <span className="badge bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-sm px-3 py-1">
+                      ⚠️ Urgent
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {keys.map((key, index) => {
+                    const borderClass = key.isExpired
+                      ? 'border-red-700'
+                      : key.isUrgent
+                      ? 'border-red-500'
+                      : key.isWarning
+                      ? 'border-yellow-500'
+                      : 'border-green-500';
+
+                    const badgeClass = key.isExpired
+                      ? 'bg-red-200 dark:bg-red-900 text-red-900 dark:text-red-200'
+                      : key.isUrgent
+                      ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
+                      : key.isWarning
+                      ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                      : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300';
+
+                    return (
+                      <div key={index} className={`pl-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-r-lg border-l-4 ${borderClass}`}>
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-bold text-gray-900 dark:text-gray-100">{key.key}</h3>
+                              <span className={`badge text-xs px-2 py-0.5 ${badgeClass}`}>
+                                {key.daysUntil < 0 ? 'EXPIRED' : `${key.daysUntil} days`}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                              <span className="font-medium">System:</span> {key.system}
+                            </p>
+                            <a
+                              href={`/automations/${key.automationId}`}
+                              className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+                            >
+                              {key.automationName} →
+                            </a>
+                            {key.notes && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">
+                                {key.notes}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                              {formatDate(key.expiration)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

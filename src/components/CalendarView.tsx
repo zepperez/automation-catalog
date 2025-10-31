@@ -22,11 +22,22 @@ interface CalendarViewProps {
     automationName: string;
     notes?: string;
   }>;
+  automations: Array<{
+    id: string;
+    name: string;
+    closed?: string;
+  }>;
 }
 
 type ViewMode = 'calendar' | 'list';
 
-export default function CalendarView({ apiKeys }: CalendarViewProps) {
+interface CompletedAutomation {
+  id: string;
+  name: string;
+  closed: Date;
+}
+
+export default function CalendarView({ apiKeys, automations }: CalendarViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -52,6 +63,15 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
     };
   });
 
+  // Process completed automations
+  const completedAutomations: CompletedAutomation[] = automations
+    .filter(a => a.closed)
+    .map(a => ({
+      id: a.id,
+      name: a.name,
+      closed: new Date(a.closed!),
+    }));
+
   // Get days in month
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -72,6 +92,18 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
         expDate.getDate() === date.getDate() &&
         expDate.getMonth() === date.getMonth() &&
         expDate.getFullYear() === date.getFullYear()
+      );
+    });
+  };
+
+  // Get completed automations for a specific day
+  const getCompletedAutomationsForDay = (date: Date) => {
+    return completedAutomations.filter(automation => {
+      const closedDate = automation.closed;
+      return (
+        closedDate.getDate() === date.getDate() &&
+        closedDate.getMonth() === date.getMonth() &&
+        closedDate.getFullYear() === date.getFullYear()
       );
     });
   };
@@ -103,6 +135,11 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
     setSelectedDate(null);
   };
 
+  const goToToday = () => {
+    setCurrentDate(new Date());
+    setSelectedDate(null);
+  };
+
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -112,6 +149,7 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
   };
 
   const selectedDayKeys = selectedDate ? getKeysForDay(selectedDate) : [];
+  const selectedDayCompleted = selectedDate ? getCompletedAutomationsForDay(selectedDate) : [];
 
   // Group keys by month for list view
   const keysByMonth = processedKeys.reduce((acc, key) => {
@@ -182,9 +220,17 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
             </svg>
           </button>
 
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </h2>
+            <button
+              onClick={goToToday}
+              className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+            >
+              Today
+            </button>
+          </div>
 
           <button
             onClick={() => changeMonth(1)}
@@ -215,7 +261,10 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
 
             const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
             const keysForDay = getKeysForDay(date);
+            const completedForDay = getCompletedAutomationsForDay(date);
             const hasKeys = keysForDay.length > 0;
+            const hasCompleted = completedForDay.length > 0;
+            const hasAnyEvents = hasKeys || hasCompleted;
             const hasExpired = keysForDay.some(k => k.isExpired);
             const hasUrgent = keysForDay.some(k => k.isUrgent);
             const hasWarning = keysForDay.some(k => k.isWarning);
@@ -230,17 +279,21 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
               date.getMonth() === selectedDate.getMonth() &&
               date.getFullYear() === selectedDate.getFullYear();
 
-            const maxKeysToShow = 3;
-            const visibleKeys = keysForDay.slice(0, maxKeysToShow);
-            const remainingCount = keysForDay.length - maxKeysToShow;
+            const maxEventsToShow = 3;
+            const allEvents = [
+              ...keysForDay.map(k => ({ type: 'key' as const, data: k })),
+              ...completedForDay.map(c => ({ type: 'completed' as const, data: c }))
+            ];
+            const visibleEvents = allEvents.slice(0, maxEventsToShow);
+            const remainingCount = allEvents.length - maxEventsToShow;
 
             return (
               <button
                 key={day}
-                onClick={() => setSelectedDate(hasKeys ? date : null)}
+                onClick={() => setSelectedDate(hasAnyEvents ? date : null)}
                 className={`
                   min-h-[100px] p-1.5 transition-all relative border-r border-b border-gray-200 dark:border-gray-700
-                  ${hasKeys ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800' : 'cursor-default bg-white dark:bg-gray-900'}
+                  ${hasAnyEvents ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800' : 'cursor-default bg-white dark:bg-gray-900'}
                   ${isToday ? 'ring-2 ring-inset ring-primary-500 dark:ring-primary-400 bg-primary-50 dark:bg-primary-950' : ''}
                   ${isSelected ? 'bg-primary-100 dark:bg-primary-900 ring-2 ring-inset ring-primary-600' : ''}
                 `}
@@ -251,26 +304,40 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
                   </span>
                 </div>
 
-                {hasKeys && (
+                {hasAnyEvents && (
                   <div className="space-y-0.5 mt-1">
-                    {visibleKeys.map((key, idx) => {
-                      const bgClass = key.isExpired
-                        ? 'bg-red-600 text-white'
-                        : key.isUrgent
-                        ? 'bg-red-500 text-white'
-                        : key.isWarning
-                        ? 'bg-yellow-500 text-gray-900'
-                        : 'bg-green-500 text-white';
+                    {visibleEvents.map((event, idx) => {
+                      if (event.type === 'key') {
+                        const key = event.data;
+                        const bgClass = key.isExpired
+                          ? 'bg-red-600 text-white'
+                          : key.isUrgent
+                          ? 'bg-red-500 text-white'
+                          : key.isWarning
+                          ? 'bg-yellow-500 text-gray-900'
+                          : 'bg-green-500 text-white';
 
-                      return (
-                        <div
-                          key={idx}
-                          className={`text-[10px] px-1 py-0.5 rounded truncate font-medium ${bgClass}`}
-                          title={key.key}
-                        >
-                          {key.key}
-                        </div>
-                      );
+                        return (
+                          <div
+                            key={`key-${idx}`}
+                            className={`text-[10px] px-1 py-0.5 rounded truncate font-medium ${bgClass}`}
+                            title={key.key}
+                          >
+                            🔑 {key.key}
+                          </div>
+                        );
+                      } else {
+                        const automation = event.data;
+                        return (
+                          <div
+                            key={`completed-${idx}`}
+                            className="text-[10px] px-1 py-0.5 rounded truncate font-medium bg-blue-500 text-white"
+                            title={automation.name}
+                          >
+                            ✓ {automation.name}
+                          </div>
+                        );
+                      }
                     })}
                     {remainingCount > 0 && (
                       <div className="text-[10px] px-1 py-0.5 rounded bg-gray-400 dark:bg-gray-600 text-white font-medium">
@@ -287,14 +354,16 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
       )}
 
       {/* Selected day details */}
-      {viewMode === 'calendar' && selectedDate && selectedDayKeys.length > 0 && (
+      {viewMode === 'calendar' && selectedDate && (selectedDayKeys.length > 0 || selectedDayCompleted.length > 0) && (
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
               {formatDate(selectedDate)}
             </h3>
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              {selectedDayKeys.length} key(s) expiring
+              {selectedDayKeys.length > 0 && `${selectedDayKeys.length} key(s) expiring`}
+              {selectedDayKeys.length > 0 && selectedDayCompleted.length > 0 && ' • '}
+              {selectedDayCompleted.length > 0 && `${selectedDayCompleted.length} automation(s) completed`}
             </span>
           </div>
 
@@ -345,6 +414,27 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
                 </div>
               );
             })}
+
+            {selectedDayCompleted.map((automation, index) => (
+              <div key={`completed-${index}`} className="pl-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-r-lg border-l-4 border-blue-500">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-bold text-gray-900 dark:text-gray-100">{automation.name}</h4>
+                      <span className="badge text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                        ✓ Completed
+                      </span>
+                    </div>
+                    <a
+                      href={`/automations/${automation.id}`}
+                      className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+                    >
+                      View automation →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -353,23 +443,35 @@ export default function CalendarView({ apiKeys }: CalendarViewProps) {
       {viewMode === 'calendar' && (
       <div className="card p-5">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Color Legend</h3>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">Keys are shown on their expiration date and color-coded by urgency:</p>
-        <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-3 rounded bg-red-600" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Expired (overdue)</span>
+        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">Events shown on the calendar:</p>
+        <div className="space-y-3">
+          <div>
+            <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">🔑 Expiring Keys (by urgency):</p>
+            <div className="flex flex-wrap gap-4 ml-4">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-3 rounded bg-red-600" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">Expired (overdue)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-3 rounded bg-red-500" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">Urgent (≤30 days)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-3 rounded bg-yellow-500" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">Warning (31-90 days)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-3 rounded bg-green-500" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">Good (&gt;90 days)</span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-3 rounded bg-red-500" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Urgent (expires in ≤30 days)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-3 rounded bg-yellow-500" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Warning (expires in 31-90 days)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-3 rounded bg-green-500" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Good (expires in &gt;90 days)</span>
+          <div>
+            <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">✓ Automations:</p>
+            <div className="flex items-center gap-2 ml-4">
+              <div className="w-4 h-3 rounded bg-blue-500" />
+              <span className="text-sm text-gray-600 dark:text-gray-400">Completed on this date</span>
+            </div>
           </div>
         </div>
       </div>

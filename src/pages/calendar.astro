@@ -99,8 +99,12 @@ const getDaysUntilExpiration = (date: Date) => {
     </div>
 
     <!-- Calendar View -->
-    {apiKeysWithExpiration.length > 0 ? (
-      <CalendarView client:load apiKeys={serializedKeys} />
+    {apiKeysWithExpiration.length > 0 || automations.some(a => a.closed) ? (
+      <CalendarView
+        client:load
+        apiKeys={serializedKeys}
+        automations={automations.map(a => ({ id: a.id, name: a.name, closed: a.closed }))}
+      />
     ) : (
       <div class="card p-12 text-center">
         <p class="text-gray-500 dark:text-gray-400 text-lg">

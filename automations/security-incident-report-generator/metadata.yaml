@@ -29,6 +29,6 @@ api_keys:
     url: https://ntiva.itglue.com/4259244/passwords/33387364
   - name: OpenAI_Natalie-SOC_API_Key
     system:  Open AI
-    expiration: 2027-10-29
+    expiration: 2025-10-29
     notes: API key for OpenAI
     url: https://ntiva.itglue.com/4259244/passwords/32955145

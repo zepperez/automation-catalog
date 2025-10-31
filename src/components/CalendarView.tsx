@@ -48,9 +48,12 @@ export default function CalendarView({ apiKeys, automations }: CalendarViewProps
 
   // Helper to parse date string and create local date (ignoring timezone)
   const parseLocalDate = (dateInput: string | Date): Date => {
-    // If already a Date object, extract components and create local date
+    // If already a Date object, convert to ISO string first to get UTC date components
     if (dateInput instanceof Date) {
-      return new Date(dateInput.getFullYear(), dateInput.getMonth(), dateInput.getDate());
+      // Extract the UTC date (YYYY-MM-DD) from the Date object
+      const isoString = dateInput.toISOString().split('T')[0];
+      const [year, month, day] = isoString.split('-').map(Number);
+      return new Date(year, month - 1, day);
     }
 
     // Parse YYYY-MM-DD format directly without timezone conversion

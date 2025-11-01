@@ -31,8 +31,10 @@
   }
 
   .dark .tag-colored {
+    /* Make text super light in dark mode for better readability */
+    color: #f0f0f0 !important;
     /* Increase background opacity in dark mode */
     background-blend-mode: screen;
-    filter: brightness(1.3) saturate(1.2);
+    filter: brightness(1.4) saturate(1.3);
   }
 }

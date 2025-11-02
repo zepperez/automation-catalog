@@ -1,116 +1,111 @@
-# Export Partner Tenants Allow / Block lists from Sophos
+# Disable Computer when User Gets Locked-Out
 
-## **Overview**
-Clients are being migrated off the Sophos platform onto Sentinel One. The purpose of this automation is to export the allow and block lists for each client in Sophos to files for backup purposes and also to create a single exclusions CSV that combines all clients for easy import into Sentinel One.
+## Overview
+Automation that disables a computer when a user gets locked out. It monitors Azure/Microsoft 365 signals for user lockout events, looks up devices associated with the affected user, and disables the device(s) (via Microsoft Graph / Intune) to limit risk and enable security investigation/response.
 
-### **Requirements**
-* Parner ClientId / ClientSecret from Sophos
-* PowerShell 7+
-* ImportExcel Powershell Module
+## Metadata
+- Name: Disable Computer when User Gets Locked-Out  
+- Author: derek-lee  
+- Department: security  
+- Customer: internal  
+- Status: live  
+- Description: Automation that will disable a computer when a user gets locked out.  
+- Tags: azure, powershell  
+- Systems: Azure  
+- Time saved (hours/month): 375  
+- Annual value (USD): 700  
+- Created: 2025-09-09  
+- Last updated: 2025-10-15  
+- Closed: 2025-09-17
 
-### **Automation flow**
+## Links
+- Source Code: https://gitlab.com/  
+- Runbook: https://runbooks.example.com/disable-computer-on-lockout
 
-1. **Parameters & Setup**
-   * Accepts an optional `ExportPath` (default `/Users/david.just/Downloads/SophosExport`).
-   * Declares helper functions for token retrieval, tenant listing, and API paging.
-
-2. **Get a Partner Token**
-   * `Get-SophosPartnerToken`  
-     * Builds a client‑credentials request body.  
-     * Calls `https://id.sophos.com/api/v2/oauth2/token`.  
-     * Returns a PSObject containing `access_token`, `refresh_token`, etc.
-
-3. **Retrieve the list of tenants**
-   * `Get-SophosPartnerTenants`  
-     * If no `PartnerId` supplied, calls `/whoami/v1` to discover it.  
-     * Adds `X-Partner-ID` header.  
-     * Loops through paginated `/partner/v1/tenants` endpoint until no items remain.  
-     * Returns an array of tenant objects (each has `id`, `name`, `apiHost`, etc.).
-
-4. **Define API paths to pull**
-   * Variables for each endpoint:
-     * `allowed-items`, `intrusion-prevention`, `isolation`,
-       `exclusions/scanning`, `blocked-items`, `blocked-addresses`.
-
-5. **Iterate over each tenant**
-   ```powershell
-   foreach ($PartnerTenant in $Tenants) {
-       ...
-   }
-   ```
-
-   For each tenant:
-
-   a. **Set tenant‑specific variables**  
-      * `$BaseUri` ← `$PartnerTenant.apiHost`  
-      * `$TenantId` ← `$PartnerTenant.id`
-
-   b. **Pull data from each endpoint**  
-      * Call `Get-SophosTenantEndpointApi` for every path.  
-        - Builds a bearer‑auth header plus `X-Tenant-ID`.  
-        - Handles 404, 403, and 429 (rate‑limit) errors with retries/backoff.  
-        - Gathers all pages of results.
-
-   c. **Transform Allowed‑Items into a friendly object**  
-      * Uses `.foreach` to map each item’s properties (`id`, `path`, `type`, etc.) into a custom object.
-
-   d. **Build the tenant data structure**  
-      ```powershell
-      $Data = [PSCustomObject]@{
-          TenantName   = $PartnerTenant.name
-          TenantId     = $PartnerTenant.id
-          Exclusions   = @{ AllowedItems=...; IntrusionPrevention=...; Isolation=...; Scanning=... }
-          Blocked      = @{ BlockedItems=...; BlockedAddresses=... }
-      }
-      ```
-
-   e. **Export to Excel**  
-      * For each section in `$Data.Exclusions` and `$Data.Blocked`:  
-        - Call `Export-Excel` (from the `ImportExcel` module).  
-        - Worksheet name = key + “ Exclusions” (for exclusions) or just the key (for blocked).  
-        - File path = `"$ExportPath/$TenantName.xlsx"`.
-
-6. **Result**
-   * For every tenant, an Excel workbook is created in the export folder containing:
-     * Separate worksheets for each exclusions category (Allowed Items, Intrusion Prevention, Isolation, Scanning).
-     * Separate worksheets for blocked items and addresses.
-    * For all tenants Craft a Sentinel One (S1) formatted CSV for scanning exclusions and allowed items of all tenants. Automatically map expected fields [OS, Path, Type, PathType, SubFolders]
+## API Keys / Credentials
+- Microsoft_Graph_API_Key_1 (system: Microsoft 365)  
+   - Expiration: 2026-06-10  
+   - Notes: Directory.Read.All permission for Microsoft Graph API  
+   - Management portal: https://portal.azure.com/
 
 ---
 
-### **Step‑by‑step Script Breakdown**
+## Requirements
+* PowerShell 7+  
+* Registered Azure AD app with Microsoft Graph permissions:
+   - Directory.Read.All (to enumerate user devices/users)
+   - DeviceManagementManagedDevices.ReadWrite (to manage devices via Intune) or Device.ReadWrite.All depending on approach
+* Network access to Microsoft Graph (https://graph.microsoft.com)  
+* Optional: Azure Monitor / Sentinel or Event Grid subscription to forward lockout alerts to the automation trigger
+* Logging/Notification channel (e.g., Teams, email, SIEM)
 
-| # | Action | What the script does (including the new Sentinel 1 transformation) |
-|---|--------|-------------------------------------------------------------------|
-| 1 | **Set the export path** | Default `/Users/david.just/Downloads/SophosExport`. |
-| 2 | **Define helper functions** | `Get‑SophosPartnerToken`, `Get‑SophosPartnerTenants`, `Get‑SophosTenantEndpointApi`. |
-| 3 | **Acquire credentials** | `$ClientId` hard‑coded; `$ClientSecret` pulled from KeyVault via `Get‑Secret`. |
-| 4 | **Obtain an OAuth token** | `$Token = Get‑SophosPartnerToken …` |
-| 5 | **Retrieve the tenant list** | `$Tenants = Get‑SophosPartnerTenants -Token $Token.access_token` |
-| 6 | **Define API paths** | Strings for each endpoint (`allowed-items`, `intrusion‑prevention`, …). |
-| 7 | **Loop over every tenant** (`foreach ($PartnerTenant in $Tenants)`) | Each iteration handles one partner‑tenant. |
-| 8 | **Tenant context** | `$BaseUri = $PartnerTenant.apiHost`, `$TenantId = $PartnerTenant.id`. |
-| 9 | **Pull each API endpoint** | Call `Get‑SophosTenantEndpointApi` for all six endpoints; handle paging, 404/403/429. |
-|10 | **Transform “Allowed Items”** | Map raw items to a custom object with fields `id, path, type…`. |
-|11 | **Create Sentinel One Compatible List** |  
-&nbsp;&nbsp;• `ClientName = $PartnerTenant.name` – the tenant’s friendly name.  
-&nbsp;&nbsp;• **Scanning exclusions** – loop over `$Scanning`:  
-&nbsp;&nbsp;&nbsp;&nbsp;- Clear temp vars (`$Os,$PathType,$Sha256`).  
-&nbsp;&nbsp;&nbsp;&nbsp;- `switch` on `$Exclusion.Type` to re‑classify the type (`amsi`, `detectedExploit`, `path`, `process`); ignore `pua`/`web`.  
-&nbsp;&nbsp;&nbsp;&nbsp;- Determine OS (`windows` or `MacOs`) by regex on the value.  
-&nbsp;&nbsp;&nbsp;&nbsp;- Set `$PathType` (`file`/`folder`) based on file‑extension pattern.  
-&nbsp;&nbsp;&nbsp;&nbsp;- Build a `[pscustomobject]` with fields `Type, OS, Value, SHA256, Path Type, Subfolders…`, plus a `Client` field set to `$ClientName`.  
-&nbsp;&nbsp;• **Allowed‑items** – loop over `$AllowedItems`:  
-&nbsp;&nbsp;&nbsp;&nbsp;- Detect OS and path type same way.  
-&nbsp;&nbsp;&nbsp;&nbsp;- Build a `[pscustomobject]` identical to the scanning one but with `Type = 'path'`, `Description = $Item.comment`, `Value = $Item.path`. |
-|12 | **Build the tenant data object** | `$Data` contains `TenantName`, `TenantId`, two sub‑hashtables:  
-&nbsp;&nbsp;– `Exclusions` (AllowedItems, IntrusionPrevention, Isolation, Scanning)  
-&nbsp;&nbsp;– `Blocked` (BlockedItems, BlockedAddresses). |
-|13 | **Export to Excel** |  
-&nbsp;&nbsp;• For each key in `$Data.Exclusions`: `Export‑Excel` → worksheet “\<Key> Exclusions”.  
-&nbsp;&nbsp;• For each key in `$Data.Blocked`: `Export‑Excel` → worksheet “\<Key>”.  
-&nbsp;&nbsp;The workbook is named after the tenant (`"$ExportPath/$($Data.TenantName).xlsx"`). |
-|14 | **Continue loop** | Repeat steps 8‑13 for the next tenant until all tenants are processed. |
-| 15 | **End** | Export Sentinel One formatted CSV |
+## High-level Automation Flow
 
-```
+1. Triggered by a "user lockout" event
+    - Source can be Azure AD sign-in logs, Azure Monitor alert, Microsoft Sentinel analytic rule, or Event Grid.
+2. Validate event and extract the affected user principal (UPN / objectId).
+3. Acquire a Microsoft Graph access token (client credentials flow) using the registered app credentials.
+4. Query Graph to enumerate devices associated with the user:
+    - /users/{id}/registeredDevices
+    - /users/{id}/ownedDevices
+    - or use Intune managed devices queries to map to corporate devices.
+5. Apply policy decision (e.g., only disable corporate-managed devices, skip BYOD).
+6. For each target device, call Graph/Intune API to disable/retire/disable login:
+    - Example actions: managedDevices/managedDeviceId/disable, retire, or mark as non-compliant.
+7. Record audit log and notify security operators with details of actions taken.
+8. Optionally create a ticket or incident in ITSM for manual follow-up and remediation.
+
+---
+
+## Implementation Notes
+
+- Triggering options:
+   - Azure Monitor alert that fires on sign-in/logon failure thresholds.
+   - Microsoft Sentinel analytic rule that emits an alert on account lockouts.
+   - Event Grid subscription for Azure AD Activity Logs if available.
+- Safety checks:
+   - Whitelist service accounts, break-glass accounts, and emergency admin accounts.
+   - Require device to be corporate-managed (Intune managed) before disabling.
+   - Rate-limit and retry on transient Graph errors (HTTP 429/5xx).
+   - Preserve auditability: store request/response and decision rationale.
+- Idempotency:
+   - Track actions taken per user/event to avoid repeated disables for the same incident.
+- Notifications:
+   - Immediate alert to security ops with user, device, action, and timestamp.
+   - Optionally notify device owner / helpdesk.
+
+---
+
+### Step-by-step Script Breakdown
+
+| # | Action | What the script does |
+|---|--------|----------------------|
+| 1 | Set configuration | Load variables: TenantId, ClientId, ClientSecret (or certificate), Graph scope, allowed device types, export/log path. |
+| 2 | Define helper functions | `Get-GraphToken`, `Get-UserDevices`, `Disable-ManagedDevice`, `Send-Notification`, `Log-Action`. |
+| 3 | Event handler / trigger | Accepts a lockout event payload (UPN / userId / event timestamp). |
+| 4 | Validate event | Confirm event source and not a duplicate; check whitelist. |
+| 5 | Acquire token | `Get-GraphToken` performs client credentials flow against `https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token`. |
+| 6 | Enumerate devices | `Get-UserDevices -UserId` calls Graph to list registered/managed devices and maps to Intune managedDevice ids if applicable. |
+| 7 | Filter targets | Keep only corporate-managed devices and those meeting configured criteria (OS, management state). |
+| 8 | Apply action | For each target device call `Disable-ManagedDevice` (Graph/Intune endpoint). Handle HTTP 403/404/429 with retry/backoff. |
+| 9 | Record audit | `Log-Action` stores event, device id, action, success/failure and API responses. |
+|10 | Notify | `Send-Notification` posts summary to security channel and creates a ticket if configured. |
+|11 | Exit | Return a structured result for the pipeline (success/failure and artifacts). |
+
+---
+
+## Result
+- When triggered, the automation will:
+   - Disable corporate-managed device(s) associated with the locked-out user.
+   - Produce an audit record and notify security operations.
+   - Reduce time to contain potential compromise and accelerate remediation.
+
+---
+
+## Operational Considerations
+- Test in a staged environment before production.  
+- Maintain allowlist/exception lists to avoid impacting critical accounts or services.  
+- Ensure least-privilege permissions for the app; rotate credentials per org policy.  
+- Monitor failures and adjust thresholds for triggering to balance security and availability.
+
+For implementation details, runbook, and source code, see the links above.

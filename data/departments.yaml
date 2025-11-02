@@ -20,5 +20,3 @@ departments:
   - id: executive
     name: Executive
     description: Executive-level automations and reporting
-  - id: product-management
-    name: Product Management

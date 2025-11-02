@@ -420,18 +420,16 @@ export default function CalendarView({ apiKeys, automations }: CalendarViewProps
                 className={`
                   min-h-[100px] p-1.5 transition-all relative border-r border-b border-gray-200 dark:border-gray-700
                   ${hasAnyEvents ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800' : 'cursor-default bg-white dark:bg-gray-900'}
-                  ${isToday ? 'ring-2 ring-inset ring-primary-500 dark:ring-primary-400 bg-primary-50 dark:bg-primary-950' : ''}
+                  ${isToday ? 'ring-2 ring-inset ring-primary-500 dark:ring-primary-500 bg-primary-100/50 dark:bg-primary-900/30' : ''}
                   ${isSelected ? 'bg-primary-100 dark:bg-primary-900 ring-2 ring-inset ring-primary-600' : ''}
                 `}
               >
-                <div className="flex justify-between items-start mb-1">
-                  <span className={`text-xs font-semibold ${isToday ? 'text-primary-600 dark:text-primary-400' : 'text-gray-700 dark:text-gray-300'}`}>
-                    {day}
-                  </span>
-                </div>
+                <span className={`absolute top-1 left-1.5 text-xs font-semibold ${isToday ? 'text-primary-600 dark:text-primary-500' : 'text-gray-700 dark:text-gray-300'}`}>
+                  {day}
+                </span>
 
                 {hasAnyEvents && (
-                  <div className="space-y-0.5 mt-1">
+                  <div className="space-y-0.5 mt-5">
                     {visibleEvents.map((event, idx) => {
                       if (event.type === 'key') {
                         const key = event.data;

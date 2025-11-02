@@ -245,9 +245,8 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
           <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">By Department</h2>
           <div class="card p-6">
             <div class="space-y-3">
-              {Array.from(new Set(allAutomations.map(a => a.department))).map(dept => {
+              {Array.from(new Set(automations.map(a => a.department))).map(dept => {
                 const deptAutomations = automations.filter(a => a.department === dept);
-                const allDeptAutomations = allAutomations.filter(a => a.department === dept);
                 const deptTimeSaved = deptAutomations.reduce((sum, a) => sum + a.time_saved_hours_per_month, 0);
                 const deptMonthlyValue = Math.round(deptAutomations.reduce((sum, a) => sum + (a.annual_value_usd / 12), 0));
 
@@ -256,7 +255,7 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
                     <div>
                       <span class="font-medium text-gray-900 dark:text-gray-100 capitalize">{dept}</span>
                       <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                        ({allDeptAutomations.length} automation{allDeptAutomations.length !== 1 ? 's' : ''})
+                        ({deptAutomations.length} automation{deptAutomations.length !== 1 ? 's' : ''})
                       </span>
                     </div>
                     <div class="text-right">
@@ -364,13 +363,58 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
       const params = new URLSearchParams(window.location.search);
       const customerFilter = params.get('customer');
 
-      if (!customerFilter || customerFilter === 'all') {
-        return; // No filtering needed, page shows all data
-      }
-
-      // Filter automations by customer
-      const filteredAutomations = allAutomations.filter(a => a.customer === customerFilter);
+      // Determine which automations to use based on filter
+      const isFiltered = customerFilter && customerFilter !== 'all';
+      const filteredAutomations = isFiltered
+        ? allAutomations.filter(a => a.customer && a.customer.toLowerCase() === customerFilter.toLowerCase())
+        : allAutomations;
       const filteredLiveAutomations = filteredAutomations.filter(a => a.status === 'live' && a.closed);
+
+      // If no filtering, reset all widgets to show all data
+      if (!isFiltered) {
+        // Show all department items
+        const deptHeadings = Array.from(document.querySelectorAll('h2')).filter(h => h.textContent?.includes('By Department'));
+        const deptBreakdown = deptHeadings.length > 0
+          ? deptHeadings[0].nextElementSibling?.querySelector('.space-y-3')
+          : null;
+        if (deptBreakdown) {
+          const deptItems = deptBreakdown.querySelectorAll('.flex.justify-between');
+          deptItems.forEach(item => {
+            item.style.display = 'flex';
+          });
+        }
+
+        // Show all engineer items
+        const engineerHeadings = Array.from(document.querySelectorAll('h2')).filter(h => h.textContent?.includes('Automations per Engineer'));
+        const engineerList = engineerHeadings.length > 0
+          ? engineerHeadings[0].nextElementSibling?.querySelector('.space-y-3')
+          : null;
+        if (engineerList) {
+          const engineerItems = engineerList.querySelectorAll('.border-l-4');
+          engineerItems.forEach(item => {
+            item.style.display = 'block';
+          });
+        }
+
+        // Show time series chart
+        const timeSeriesContainer = document.getElementById('timeSeriesContainer');
+        const timeSeriesFiltered = document.getElementById('timeSeriesFiltered');
+        if (timeSeriesContainer && timeSeriesFiltered) {
+          timeSeriesContainer.style.display = 'block';
+          timeSeriesFiltered.style.display = 'none';
+        }
+
+        // Show all recent automations
+        const recentContainer = document.getElementById('recentUpdatesContainer');
+        if (recentContainer) {
+          const recentCards = recentContainer.querySelectorAll('[data-automation-id]');
+          recentCards.forEach(card => {
+            card.style.display = 'block';
+          });
+        }
+
+        return;
+      }
 
       // Recalculate stats
       const totalCount = filteredAutomations.length;
@@ -512,13 +556,18 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
       }
 
       // Filter department breakdown
-      const deptBreakdown = document.querySelectorAll('.space-y-3')[0];
+      // Find the "By Department" heading and get the next card's space-y-3 container
+      const deptHeadings = Array.from(document.querySelectorAll('h2')).filter(h => h.textContent?.includes('By Department'));
+      const deptBreakdown = deptHeadings.length > 0
+        ? deptHeadings[0].nextElementSibling?.querySelector('.space-y-3')
+        : null;
       if (deptBreakdown) {
         const deptItems = deptBreakdown.querySelectorAll('.flex.justify-between');
-        const filteredDepts = new Set(filteredAutomations.map(a => a.department));
+        const filteredDepts = new Set(filteredLiveAutomations.map(a => a.department.toLowerCase()));
 
-        deptItems.forEach(item => {
+        deptItems.forEach((item) => {
           const deptName = item.querySelector('.font-medium')?.textContent?.trim().toLowerCase();
+
           if (deptName && !filteredDepts.has(deptName)) {
             item.style.display = 'none';
           } else {
@@ -526,25 +575,34 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
 
             // Recalculate department stats
             if (deptName) {
-              const deptAutomations = filteredLiveAutomations.filter(a => a.department === deptName);
-              const allDeptAutomations = filteredAutomations.filter(a => a.department === deptName);
+              const deptAutomations = filteredLiveAutomations.filter(a => a.department.toLowerCase() === deptName);
               const deptTimeSaved = deptAutomations.reduce((sum, a) => sum + a.time_saved_hours_per_month, 0);
               const deptMonthlyValue = Math.round(deptAutomations.reduce((sum, a) => sum + (a.annual_value_usd / 12), 0));
 
               const countSpan = item.querySelector('.text-sm.text-gray-500');
-              const timeDiv = item.querySelector('.text-right .font-semibold');
-              const valueDiv = item.querySelector('.text-right .text-sm');
+              const rightContainer = item.querySelector('.text-right');
 
-              if (countSpan) countSpan.textContent = `(${allDeptAutomations.length} automation${allDeptAutomations.length !== 1 ? 's' : ''})`;
-              if (timeDiv) timeDiv.textContent = `${deptTimeSaved}h/mo`;
-              if (valueDiv) {
-                const formatted = new Intl.NumberFormat('en-US', {
-                  style: 'currency',
-                  currency: 'USD',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(deptMonthlyValue);
-                valueDiv.textContent = `${formatted}/mo`;
+              if (countSpan) {
+                countSpan.textContent = `(${deptAutomations.length} automation${deptAutomations.length !== 1 ? 's' : ''})`;
+              }
+
+              if (rightContainer) {
+                const rightDivs = rightContainer.querySelectorAll('div');
+
+                if (rightDivs.length >= 2) {
+                  const timeDiv = rightDivs[0];  // First div is time saved
+                  const valueDiv = rightDivs[1];  // Second div is value
+
+                  timeDiv.textContent = `${deptTimeSaved}h/mo`;
+
+                  const formatted = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  }).format(deptMonthlyValue);
+                  valueDiv.textContent = `${formatted}/mo`;
+                }
               }
             }
           }
@@ -552,11 +610,15 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
       }
 
       // Filter engineer list
-      const engineerList = document.querySelectorAll('.space-y-3')[1];
+      // Find the "Automations per Engineer" heading and get the next card's space-y-3 container
+      const engineerHeadings = Array.from(document.querySelectorAll('h2')).filter(h => h.textContent?.includes('Automations per Engineer'));
+      const engineerList = engineerHeadings.length > 0
+        ? engineerHeadings[0].nextElementSibling?.querySelector('.space-y-3')
+        : null;
       if (engineerList) {
         const engineerItems = engineerList.querySelectorAll('.border-l-4');
 
-        engineerItems.forEach(item => {
+        engineerItems.forEach((item) => {
           const engineerName = item.querySelector('.font-semibold')?.textContent?.trim();
           if (engineerName) {
             const engineer = engineers.find(e => e.name === engineerName);
@@ -576,22 +638,30 @@ const processedExpiringKeys = expiringKeys.slice(0, 5).map(key => {
                 const devCount = allEngineerAutomations.filter(a => a.status === 'development').length;
                 const backlogCount = allEngineerAutomations.filter(a => a.status === 'backlog').length;
 
-                const countDiv = item.querySelector('.font-bold.text-gray-900');
-                const countLabel = item.querySelector('.text-xs.text-gray-500');
-                const timeDiv = item.querySelector('.text-sm.font-semibold.text-primary-600');
-                const valueDiv = item.querySelector('.text-sm.font-semibold.text-green-600');
+                // Find the metrics container first, then select within it
+                const metricsContainer = item.querySelector('.text-right.flex-shrink-0');
 
-                if (countDiv) countDiv.textContent = allEngineerAutomations.length.toString();
-                if (countLabel) countLabel.textContent = `automation${allEngineerAutomations.length !== 1 ? 's' : ''}`;
-                if (timeDiv) timeDiv.textContent = `${engineerTimeSaved}h/mo`;
-                if (valueDiv) {
-                  const formatted = new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                  }).format(engineerMonthlyValue);
-                  valueDiv.textContent = `${formatted}/mo`;
+                if (metricsContainer) {
+                  const divs = metricsContainer.querySelectorAll('div');
+
+                  if (divs.length >= 4) {
+                    const countDiv = divs[0];  // First div is count
+                    const countLabel = divs[1];  // Second div is label
+                    const timeDiv = divs[2];  // Third div is time saved
+                    const valueDiv = divs[3];  // Fourth div is value
+
+                    countDiv.textContent = allEngineerAutomations.length.toString();
+                    countLabel.textContent = `automation${allEngineerAutomations.length !== 1 ? 's' : ''}`;
+                    timeDiv.textContent = `${engineerTimeSaved}h/mo`;
+
+                    const formatted = new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    }).format(engineerMonthlyValue);
+                    valueDiv.textContent = `${formatted}/mo`;
+                  }
                 }
 
                 // Update status badges

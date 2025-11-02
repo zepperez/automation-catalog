@@ -50,3 +50,12 @@ tags:
   - id: forms
     name: Forms
     color: '#68217A'
+  - id: autotask
+    name: Autotask
+    color: '#FF6F00'
+  - id: intune
+    name: Intune
+    color: '#107C10'
+  - id: microsoft
+    name: Microsoft
+    color: '#567373'

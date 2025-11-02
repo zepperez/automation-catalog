@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import DarkModeToggle from '../components/DarkModeToggle';
 import CustomerFilter from '../components/CustomerFilter';
-import { loadAutomations } from '../utils/data';
+import { loadAutomations, loadVersion } from '../utils/data';
 
 interface Props {
   title?: string;
@@ -17,6 +17,9 @@ const {
 // Get unique customers for the filter
 const automations = loadAutomations();
 const customers = Array.from(new Set(automations.map(a => a.customer).filter(Boolean) as string[])).sort();
+
+// Get version number
+const version = loadVersion();
 ---
 
 <!DOCTYPE html>
@@ -148,6 +151,7 @@ const customers = Array.from(new Set(automations.map(a => a.customer).filter(Boo
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="text-center text-gray-400">
         <p>&copy; 2025 DevOps Automation Team. All rights reserved.</p>
+        <p class="mt-2 text-sm text-gray-500">Version {version}</p>
       </div>
     </div>
   </footer>

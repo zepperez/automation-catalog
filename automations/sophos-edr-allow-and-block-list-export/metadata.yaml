@@ -1,19 +1,27 @@
-name: Sophos EDR Allow and Block List Export
-author: david-just
-department: product-management
+name: Disable Computer when User Gets Locked-Out
+author: derek-lee
+department: security
 customer: "internal"
 status: live
-description: Automation that will export the Sophos EDR allow and block list for all customers.
+description: Automation that will disable a computer when a user gets locked out.
 tags:
-  - sophos
+  - azure
   - powershell
 systems:
-  - Sophos
-time_saved_hours_per_month: 3.75
+  - Azure
+time_saved_hours_per_month: 375
 annual_value_usd: 700
 created: 2025-09-09
 last_updated: 2025-10-15
 closed: 2025-09-17
 links:
   - name: Source Code
-    url: https://gitlab.com/atlas41/internal-devops/sophos/-/tree/0e2627d85e4161e51c3decfd22204300486feb9f/Export%20Tenants%20Allow%20and%20Exclusion%20Lists
+    url: https://gitlab.com/
+  - name: Runbook
+    url: https://runbooks.example.com/disable-computer-on-lockout
+api_keys:
+  - name: Microsoft_Graph_API_Key_1
+    system: Microsoft 365
+    expiration: 2026-06-10
+    notes: Directory.Read.All permission for Microsoft Graph API
+    url: https://portal.azure.com/

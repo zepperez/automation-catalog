@@ -246,3 +246,23 @@ export function getExpiringApiKeys(daysAhead: number = 90): Array<ApiKey & { aut
     return dateA.getTime() - dateB.getTime();
   });
 }
+
+export function loadVersion(): string {
+  const filePath = getDataPath('data/version.yaml');
+
+  // Default version if file doesn't exist
+  const defaultVersion = '1.0.0';
+
+  if (!fs.existsSync(filePath)) {
+    return defaultVersion;
+  }
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const data = yaml.load(content) as { version: string };
+    return data.version || defaultVersion;
+  } catch (error) {
+    console.error('Error loading version:', error);
+    return defaultVersion;
+  }
+}

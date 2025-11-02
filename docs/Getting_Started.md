@@ -13,6 +13,7 @@ Before you begin, make sure you have:
 - An **Azure account** with permissions to create resources ([Create free account](https://azure.microsoft.com/free/))
 - A **GitHub account** ([Sign up](https://github.com/signup))
 - Basic familiarity with command line/terminal
+- **VSCode** (recommended) with the YAML extension for schema validation
 
 ---
 
@@ -248,6 +249,41 @@ emojis:
 4. The emojis will update automatically on your next deployment
 
 **Note**: You only need to include the emojis you want to change. Any keys not specified will use the default values.
+
+### 7.4 Version Number
+
+The version number displayed in the footer can be easily updated by editing `data/version.yaml`:
+
+```yaml
+# Version Configuration
+# Update this file to change the version number displayed in the footer
+version: "1.0.0"
+```
+
+Simply update the version number and commit the change. The new version will automatically appear in the footer after deployment.
+
+### 7.5 YAML Schema Validation
+
+The project includes JSON schemas for all YAML configuration files to help VSCode validate your files and provide autocomplete suggestions.
+
+**Schemas are located in the `schemas/` directory:**
+- `automation.schema.json` - Validates `automations/*/metadata.yaml` files
+- `departments.schema.json` - Validates `data/departments.yaml`
+- `engineers.schema.json` - Validates `data/engineers.yaml`
+- `tags.schema.json` - Validates `data/tags.yaml`
+- `emojis.schema.json` - Validates `data/emojis.yaml`
+- `version.schema.json` - Validates `data/version.yaml`
+
+**VSCode Setup:**
+1. Install the [YAML extension by Red Hat](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
+2. The `.vscode/settings.json` file is already configured to associate schemas with the correct files
+3. When you open YAML files, you'll get:
+   - Real-time validation with error highlighting
+   - Autocomplete suggestions for property names
+   - Hover documentation for fields
+   - Required field warnings
+
+If VSCode doesn't recognize the schemas, try reloading the window: `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux) → "Developer: Reload Window"
 
 ---
 

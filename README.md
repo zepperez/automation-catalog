@@ -113,6 +113,49 @@ api_keys:
 
 ---
 
+## 🔐 Optional Single Sign-On (SSO)
+
+The Automation Catalog supports **optional** Azure AD (Microsoft Entra ID) authentication to restrict access to your organization.
+
+**By default, the site is publicly accessible.** SSO is an opt-in feature.
+
+### Key Features
+
+- 🔒 Restrict access to authenticated users only
+- 👥 Optional group-based access control (limit to specific Azure AD groups)
+- ⚡ Easy to enable with a simple configuration file
+- 🚀 No code changes required - uses Azure Static Web Apps built-in auth
+- 🌐 Public by default - perfect for cloning and getting started quickly
+
+### Quick Start to Enable SSO
+
+1. **Copy the configuration template**:
+   ```bash
+   cp staticwebapp.config.json.example staticwebapp.config.json
+   ```
+
+2. **Configure Azure AD** - Follow **[docs/Azure_AD_Setup.md](docs/Azure_AD_Setup.md)**
+
+3. **Deploy with SSO enabled**:
+   ```bash
+   git add -f staticwebapp.config.json
+   git commit -m "Enable Azure AD SSO"
+   git push origin main
+   ```
+
+**To disable SSO** (restore public access):
+
+```bash
+git rm staticwebapp.config.json
+git push origin main
+```
+
+For detailed instructions, see:
+- **[docs/Azure_AD_Setup.md](docs/Azure_AD_Setup.md)** - Azure AD / Entra ID configuration
+- **[docs/Enabling_SSO.md](docs/Enabling_SSO.md)** - Enable/disable SSO in the project
+
+---
+
 ## 🧠 Features
 
 ### 📂 Catalog Browsing

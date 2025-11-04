@@ -31,3 +31,9 @@ pnpm-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Azure Static Web Apps - SSO Configuration (optional)
+# This file is ignored by default. To enable SSO, copy staticwebapp.config.json.example
+# to staticwebapp.config.json and configure Azure AD. If you want to commit your SSO
+# configuration to your repo, remove this line or use git add -f
+staticwebapp.config.json

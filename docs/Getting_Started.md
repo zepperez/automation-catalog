@@ -331,9 +331,57 @@ If you get authentication errors:
 
 ---
 
+## Optional: Enable Single Sign-On (SSO)
+
+The Automation Catalog supports optional Azure AD authentication to restrict access to your organization.
+
+**By default, the site is publicly accessible.** SSO is an opt-in feature.
+
+### When to Enable SSO
+
+Consider enabling SSO if you want to:
+- Restrict access to authenticated users in your organization
+- Require Microsoft account login before viewing the catalog
+- Limit access to specific Azure AD groups (e.g., only DevOps team members)
+- Leverage existing enterprise identity management
+
+### How to Enable SSO
+
+SSO is disabled by default. To enable it:
+
+1. **Copy the configuration template**:
+   ```bash
+   cp staticwebapp.config.json.example staticwebapp.config.json
+   ```
+
+2. **Configure Azure AD**: Follow the **[Azure_AD_Setup.md](./Azure_AD_Setup.md)** guide to:
+   - Register an application in Azure AD / Entra ID
+   - Configure authentication settings
+   - Set up optional group-based access control
+   - Connect Azure Static Web Apps to Azure AD
+
+3. **Deploy with SSO enabled**:
+   ```bash
+   git add -f staticwebapp.config.json
+   git commit -m "Enable Azure AD SSO authentication"
+   git push origin main
+   ```
+   SSO will be active after deployment completes.
+
+4. **Test**: Visit your site - you should be redirected to Microsoft login
+
+For detailed instructions and configuration options, see **[Enabling_SSO.md](./Enabling_SSO.md)**.
+
+### The Site is Public by Default
+
+No action needed! When you clone this repository, the site will be publicly accessible without any authentication requirements.
+
+---
+
 ## Next Steps
 
 - **Add automations**: Follow the [Adding_Automations.md](./Adding_Automations.md) guide
+- **Enable SSO (optional)**: Follow the [Azure_AD_Setup.md](./Azure_AD_Setup.md) and [Enabling_SSO.md](./Enabling_SSO.md) guides
 - **Customize styling**: Edit files in `src/styles/` and Tailwind configuration
 - **Add more features**: Explore the `src/components/` and `src/pages/` directories
 - **Join the community**: Check out issues and discussions on GitHub

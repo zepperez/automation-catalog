@@ -4,6 +4,8 @@
 A central hub for discovering, tracking, and visualizing all automations built by the DevOps Automation team.  
 This platform provides visibility into every automation’s purpose, ownership, value, dependencies, and key lifecycle data — all in one place.
 
+**Example Site**: [https://witty-mushroom-08f3a2e1e.3.azurestaticapps.net/](https://witty-mushroom-08f3a2e1e.3.azurestaticapps.net/)
+
 ---
 
 ## 🚀 Overview
